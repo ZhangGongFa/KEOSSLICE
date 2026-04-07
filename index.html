@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Keos Slice – Ninja Dinh Dưỡng</title>
+    <style>
+        /*
+         * UI/UX STYLES - CHUYỂN ĐỔI SANG PHONG CÁCH NINJA & LANDSCAPE
+         */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background-color: #1a0f05; 
+        }
+        body {
+            overflow: hidden;
+            font-family: system-ui, -apple-system, sans-serif;
+            background: radial-gradient(circle at 50% 50%, #4a2b10 0%, #1a0f05 100%);
+            touch-action: none;
+            user-select: none;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        #rotate-device {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #e65100;
+            color: white;
+            z-index: 9999;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+            padding: 20px;
+        }
+        @media screen and (orientation: portrait) {
+            #rotate-device { display: flex; }
+            #game-container { display: none !important; }
+        }
+
+        #game-container {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+            cursor: crosshair;
+        }
+
+        .ui-screen {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;
+            z-index: 10;
+            background: rgba(26, 15, 5, 0.85); 
+            backdrop-filter: blur(8px);
+            padding: 0 20px; box-sizing: border-box;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(1.1); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        /* Thêm lại class hidden để ẩn màn hình */
+        .hidden {
+            display: none !important;
+        }
+
+        h1 {
+            font-family: 'Impact', 'Arial Black', sans-serif;
+            font-style: italic;
+            font-size: clamp(3rem, 8vw, 5rem);
+            color: #fff;
+            margin-bottom: 5px;
+            letter-spacing: 2px;
+            text-shadow: 3px 3px 0px #e65100, -2px -2px 0px #ffb74d, 0 0 20px rgba(230, 81, 0, 0.8);
+            background: linear-gradient(to bottom, #ffffff, #ffe0b2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        h2 { font-weight: 700; color: #ffcc80; margin-bottom: 12px; font-size: clamp(1rem, 3vw, 1.5rem); }
+        
+        .instructions {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 12px 20px; border-radius: 12px; margin-bottom: 20px;
+            font-size: 1rem; color: #fff; font-weight: 500;
+            border-left: 4px solid #e65100;
+        }
+
+        input[type="text"] {
+            padding: 12px 20px; font-size: 1.2rem; border: 2px solid #e65100;
+            border-radius: 8px; outline: none; width: 260px; text-align: center;
+            margin-bottom: 16px; background: rgba(255,255,255,0.9);
+            font-weight: bold;
+        }
+        
+        button {
+            padding: 14px 40px; font-size: 1.5rem; font-weight: 900;
+            background: #e65100; color: white;
+            border: 2px solid #ffb74d; border-radius: 8px; cursor: pointer;
+            box-shadow: 0 4px 0 #bf360c;
+            transition: all 0.1s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        button:active { transform: translateY(4px); box-shadow: 0 0 0 #bf360c; }
+
+        #hud {
+            position: absolute; top: 16px; left: 16px; right: 16px;
+            pointer-events: none; display: none; z-index: 5;
+        }
+        
+        #score-display {
+            position: absolute; top: 10px; left: 20px;
+            font-family: 'Impact', sans-serif;
+            font-size: 3rem; color: #ffb74d;
+            text-shadow: 2px 2px 0px #000, 0 0 10px #e65100;
+        }
+
+        #lives-container {
+            position: absolute; top: 10px; right: 20px;
+            font-size: 2rem; text-shadow: 2px 2px 0px #000;
+        }
+
+        #pet-avatar {
+            position: absolute; bottom: 20px; left: 20px;
+            width: 80px; height: 80px;
+            background: rgba(255,255,255,0.2);
+            border: 3px solid #ffb74d;
+            border-radius: 50%;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 3rem;
+            box-shadow: 0 0 20px rgba(255, 183, 77, 0.5);
+            transition: transform 0.1s;
+        }
+        .pet-eat-anim { transform: scale(1.2); }
+
+        #combo-display {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-family: 'Impact', sans-serif; font-size: 4rem; color: #00e5ff;
+            text-shadow: 2px 2px 0 #000, 0 0 20px #00e5ff;
+            opacity: 0; pointer-events: none; transition: opacity 0.2s;
+        }
+
+        #countdown-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: none; justify-content: center; align-items: center; z-index: 50;
+            font-family: 'Impact', sans-serif;
+            font-size: clamp(6rem, 20vw, 12rem); font-style: italic;
+            color: #ffb74d; background: rgba(26, 15, 5, 0.8);
+            text-shadow: 4px 4px 0 #e65100, 0 0 40px #e65100;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .choice-group { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; margin-bottom: 20px; }
+        .choice-card input { position: absolute; opacity: 0; }
+        .choice-card span {
+            display: inline-block; padding: 10px 20px; border-radius: 8px;
+            border: 2px solid #555; background: #222; color: #fff; font-weight: bold; cursor: pointer;
+        }
+        .choice-card input:checked + span { border-color: #ffb74d; background: #e65100; }
+
+        #game-over-screen { background: rgba(0,0,0,0.9); }
+        .recommendation-card {
+            background: #2a1a10; border: 2px solid #e65100; border-radius: 12px; padding: 16px;
+            text-align: left; color: #fff; margin-bottom: 20px;
+        }
+        .recommendation-card h3 { color: #ffb74d; margin: 0 0 10px 0; }
+        
+        .marketplace-buttons { display: flex; gap: 10px; }
+        .marketplace-link {
+            flex: 1; padding: 10px; border-radius: 6px; text-align: center;
+            color: white; font-weight: bold; text-decoration: none;
+        }
+        .shopee { background: #ee4d2d; }
+        
+        .tiktok { background: #111; border: 1px solid #444; }
+
+        #save-status {
+            min-height: 1.2em;
+            margin: 0 0 16px;
+            color: #ffcc80;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+
+    </style>
+</head>
+<body>
+    <div id="rotate-device">
+        <div style="font-size: 3rem; margin-bottom: 10px;">🔄📱</div>
+        Vui lòng xoay ngang màn hình<br>để trải nghiệm Game Ninja!
+    </div>
+
+        <div style="display:none;">
+        <img id="img-keos-logo" src="keos_logo_watermark.png" alt="Keos Logo">
+        <img id="img-puppy" src="keos_puppy.png" alt="Keos Puppy">
+        <img id="img-beef" src="keos_beef_vegetables.png" alt="Keos Beef">
+        <img id="img-chicken" src="keos_chicken_vegetables.png" alt="Keos Chicken">
+        <img id="img-tuna" src="keos_tuna.png" alt="Keos Tuna">
+        <img id="img-seafood" src="keos_seafood.png" alt="Keos Seafood">
+        <img id="img-plus-small" src="keosplus_smallbreeds.png" alt="Keos+ Small">
+        <img id="img-plus-protein" src="keosplus_high_protein.png" alt="Keos+ Protein">
+        <img id="img-plus-hairball" src="keosplus_hairball.png" alt="Keos+ Hairball">
+        <img id="img-plus-digestive" src="keosplus_digestive.png" alt="Keos+ Digestive">
+        <img id="img-plus-urinary" src="keosplus_urinary.png" alt="Keos+ Urinary">
+        <img id="img-negative-comtam" src="negative_comtam.png" alt="Cơm tấm">
+        <img id="img-negative-banhmi" src="negative_banhmi.png" alt="Bánh mì">
+        <img id="img-negative-pho" src="negative_pho.png" alt="Phở">
+        <img id="img-negative-bunbo" src="negative_bunbo.png" alt="Bún bò">
+    </div>
+
+    <div id="game-container">
+        <!-- Đã thêm class hidden vào đây và class hidden đã được định nghĩa trong CSS -->
+        <div id="start-screen" class="ui-screen">
+            <h1>KEOS SLICE</h1>
+            <h2>Ninja Cắt Hạt Dinh Dưỡng</h2>
+            <div class="instructions">
+                ⚔️ Vuốt để chém các túi thức ăn thú cưng.<br>
+                💣 Chú ý Cơm, Phở, Bánh Mì là BOM, chém trúng sẽ mất mạng!<br>
+                ✨ Chém liên hoàn (Combo) để nhận thêm điểm.
+            </div>
+            <input type="text" id="player-name" placeholder="Tên Ninja của bạn..." maxlength="12">
+            <div class="choice-group">
+                <label class="choice-card"><input type="radio" name="pet-companion" value="dog" checked><span>🐶 Cún cưng</span></label>
+                <label class="choice-card"><input type="radio" name="pet-companion" value="cat"><span>🐱 Mèo cưng</span></label>
+            </div>
+            <button onclick="startGame()">Bắt Đầu Chém</button>
+        </div>
+
+        <!-- Màn hình game over sẽ được ẩn mặc định -->
+        <div id="game-over-screen" class="ui-screen hidden">
+            <h1 style="font-size: 3rem;">Hết Mạng!</h1>
+            <h2 id="final-message" style="color:#fff;"></h2>
+            <p style="font-size: 2rem; color: #ffb74d; font-weight: bold;">Điểm ván này: <span id="high-score-display">0</span></p>
+            <div id="recommendation-panel" style="width: 100%; max-width: 500px;"></div>
+            <p id="save-status"></p>
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <button onclick="resetGame()">Chơi Lại</button>
+                <button onclick="backToStart()" style="background:#555; border-color:#333; box-shadow: 0 4px 0 #222;">Trang Chủ</button>
+            </div>
+        </div>
+
+        <canvas id="gameCanvas"></canvas>
+        
+        <div id="hud">
+            <div id="score-display">0</div>
+            <div id="lives-container">❤️❤️❤️</div>
+            <div id="pet-avatar">🐶</div>
+            <div id="combo-display">COMBO x3</div>
+        </div>
+
+        <div id="countdown-overlay">3</div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const petAvatar = document.getElementById('pet-avatar');
+        const comboDisplay = document.getElementById('combo-display');
+        const recommendationPanel = document.getElementById('recommendation-panel');
+        const centerLogoImage = document.getElementById('img-keos-logo');
+        const saveStatusEl = document.getElementById('save-status');
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        const PRODUCT_CATALOG = [
+            {
+                id: 'keos-puppy',
+                imageId: 'img-puppy',
+                petType: 'dog',
+                name: '[Keos] Hạt cho chó con, vị gà trứng sữa',
+                intro: 'Công thức dành cho chó con mới cai sữa, có thể làm mềm với nước khi tập ăn và còn phù hợp cho chó mẹ đang mang thai hoặc cho con bú.',
+                shopeeUrl: 'https://s.shopee.vn/15iWt2bur',
+                tiktokUrl: 'https://vt.tiktok.com/ZS9R2emfcGWpx-ZpS78/'
+            },
+            {
+                id: 'keos-dog-beef',
+                imageId: 'img-beef',
+                petType: 'dog',
+                name: '[Keos] Hạt cho chó trưởng thành, vị bò rau củ',
+                intro: 'Dòng hạt cho cún trưởng thành với nền dinh dưỡng toàn diện, giúp duy trì thể trạng khỏe mạnh và sự năng động trong nhịp sinh hoạt mỗi ngày.',
+                shopeeUrl: 'https://s.shopee.vn/7fV9ehkPq8',
+                tiktokUrl: 'https://vt.tiktok.com/ZS9R2ekDQ3jfd-MCJmm/'
+            },
+            {
+                id: 'keos-dog-chicken',
+                imageId: 'img-chicken',
+                petType: 'dog',
+                name: '[Keos] Hạt cho chó trưởng thành, vị gà rau củ',
+                intro: 'Hương vị gà rau củ dễ ăn, phù hợp cho cún trưởng thành cần bữa hạt cân bằng, dễ làm quen và tiện dùng hằng ngày.',
+                shopeeUrl: 'https://s.shopee.vn/AACUdY3y5t',
+                tiktokUrl: 'https://vt.tiktok.com/ZS9R2ePM3o39E-OpJy6/'
+            },
+            {
+                id: 'keos-cat-tuna',
+                imageId: 'img-tuna',
+                petType: 'cat',
+                name: '[Keos] Hạt cho mèo mọi lứa tuổi, vị cá ngừ',
+                intro: 'Vị cá ngừ thơm dễ ăn giúp kích thích vị giác, đồng thời bổ sung taurine để hỗ trợ thị lực và tim mạch cho bé mèo.',
+                shopeeUrl: 'https://s.shopee.vn/30jK6VwTRi',
+                tiktokUrl: 'https://vt.tiktok.com/ZS9R2egqoxERK-zcOaf/'
+            },
+            {
+                id: 'keos-cat-seafood',
+                imageId: 'img-seafood',
+                petType: 'cat',
+                name: '[Keos] Hạt cho mèo mọi lứa tuổi, vị hải sản',
+                intro: 'Công thức vị hải sản giúp mèo ăn ngon miệng hơn, đồng thời cung cấp taurine cùng tỷ lệ đạm và khoáng chất cân đối.',
+                shopeeUrl: 'https://s.shopee.vn/6VJCGvjthQ',
+                tiktokUrl: 'https://vt.tiktok.com/ZS9R2ebuFdy4n-mSRUQ/'
+            },
+            {
+                id: 'keos-plus-small',
+                imageId: 'img-plus-small',
+                petType: 'dog',
+                name: '[Keos+] Dành riêng cho chó size nhỏ, vị thịt cừu & gạo',
+                intro: 'Hạt nhỏ vừa miệng cho cún size nhỏ, dùng nền thịt cừu và gạo để tăng độ ngon miệng và hỗ trợ tiêu hóa tốt hơn.',
+                shopeeUrl: 'https://s.shopee.vn/2g6Ti0pLZD',
+                tiktokUrl: 'https://vt.tiktok.com/ZS9R2eERXb3hx-90eru/'
+            },
+            {
+                id: 'keos-plus-protein',
+                imageId: 'img-plus-protein',
+                petType: 'dog',
+                name: '[Keos+] High Protein cho chó trưởng thành, vị gà & cừu',
+                intro: 'Dòng năng lượng cao cho cún hoạt động nhiều, bổ sung đạm chất lượng cùng glucosamine, chondroitin và L-carnitine hỗ trợ cơ xương khớp.',
+                shopeeUrl: 'https://s.shopee.vn/4frY5f6G48',
+                tiktokUrl: 'https://vt.tiktok.com/ZS9R2ecqQMKEH-1vVb0/'
+            },
+            {
+                id: 'keos-plus-hairball',
+                imageId: 'img-plus-hairball',
+                petType: 'cat',
+                name: '[Keos+] Hairball Control cho mèo trưởng thành, vị cá ngừ',
+                intro: 'Công thức giàu chất xơ tự nhiên giúp giảm búi lông, đồng thời bổ sung Omega 3, 6 và kẽm hữu cơ để da lông thêm khỏe đẹp.',
+                shopeeUrl: 'https://s.shopee.vn/70FSrv0reH',
+                tiktokUrl: 'https://vt.tiktok.com/ZS9R2eWh4gGj3-v4S1u/'
+            },
+            {
+                id: 'keos-plus-digestive',
+                imageId: 'img-plus-digestive',
+                petType: 'dog',
+                name: '[Keos+] Digestive Care cho chó trưởng thành, vị thịt cừu & gạo',
+                intro: 'Công thức dùng thịt cừu và gạo để tăng độ hợp khẩu vị, đồng thời hỗ trợ tiêu hóa và hấp thu tốt hơn cho cún trưởng thành.',
+                shopeeUrl: 'https://s.shopee.vn/6fccTHMOcn',
+                tiktokUrl: 'https://vt.tiktok.com/ZS9R2enDPBaNn-bF3MY/'
+            },
+            {
+                id: 'keos-plus-urinary',
+                imageId: 'img-plus-urinary',
+                petType: 'cat',
+                name: '[Keos+] Urinary Care cho mèo trưởng thành, vị cá biển',
+                intro: 'Công thức được tối ưu cho mèo dễ gặp vấn đề tiết niệu, hỗ trợ cân bằng pH nước tiểu và tăng sự thoải mái khi đi vệ sinh.',
+                shopeeUrl: 'https://s.shopee.vn/2BAD77Q2nX',
+                tiktokUrl: 'https://vt.tiktok.com/ZS9R2d1H1Somf-bpgST/'
+            }
+        ];
+
+        const productAssets = PRODUCT_CATALOG.map(p => ({ ...p, img: document.getElementById(p.imageId) }));
+        const negativeImages = [
+            document.getElementById('img-negative-comtam'),
+            document.getElementById('img-negative-banhmi'),
+            document.getElementById('img-negative-pho'),
+            document.getElementById('img-negative-bunbo')
+        ];
+
+        const SCORE_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbygsnnbJ5EoOfWqv0d65_z7OppHrUmuJj3s89CmkxIqS6m3gTv7C3VR97JwCwLHm6FE/exec'; // Dán URL Web App Google Apps Script vào đây để lưu tập trung
+        const RESULT_QUEUE_KEY = 'keosSlicePendingResults';
+        const LOCAL_RESULT_HISTORY_KEY = 'keosSliceSavedResults';
+        const MAX_LOCAL_RESULTS = 200;
+
+        function createSessionId() {
+            if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+                return window.crypto.randomUUID();
+            }
+            return 'session-' + Date.now() + '-' + Math.random().toString(16).slice(2);
+        }
+
+        let currentSessionId = createSessionId();
+        let resultSubmitted = false;
+
+        function updateSaveStatus(message, isError = false) {
+            if (!saveStatusEl) return;
+            saveStatusEl.textContent = message || '';
+            saveStatusEl.style.color = isError ? '#ff9e80' : '#ffcc80';
+        }
+
+        function readStoredArray(key) {
+            try {
+                return JSON.parse(localStorage.getItem(key) || '[]');
+            } catch (error) {
+                console.warn('Không đọc được localStorage cho', key, error);
+                return [];
+            }
+        }
+
+        function writeStoredArray(key, items) {
+            const safeItems = items.slice(-MAX_LOCAL_RESULTS);
+            localStorage.setItem(key, JSON.stringify(safeItems));
+        }
+
+        function rememberResultLocally(payload) {
+            const resultHistory = readStoredArray(LOCAL_RESULT_HISTORY_KEY);
+            resultHistory.push(payload);
+            writeStoredArray(LOCAL_RESULT_HISTORY_KEY, resultHistory);
+        }
+
+        function queuePendingResult(payload) {
+            const queue = readStoredArray(RESULT_QUEUE_KEY);
+            queue.push(payload);
+            writeStoredArray(RESULT_QUEUE_KEY, queue);
+        }
+
+
+        async function postResultToWebhook(payload) {
+            const body = new URLSearchParams();
+            Object.entries(payload).forEach(([key, value]) => {
+                body.append(key, value == null ? '' : String(value));
+            });
+            const response = await fetch(SCORE_WEBHOOK_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+                },
+                body: body.toString()
+            });
+            if (!response.ok) {
+                throw new Error('HTTP ' + response.status);
+            }
+            return response;
+        }
+
+        async function flushPendingResults() {
+            if (!SCORE_WEBHOOK_URL) return;
+            const queue = readStoredArray(RESULT_QUEUE_KEY);
+            if (!queue.length) return;
+            for (const item of queue) {
+                await postResultToWebhook(item);
+            }
+            localStorage.removeItem(RESULT_QUEUE_KEY);
+        }
+
+        function buildResultPayload(recommendedProduct) {
+            return {
+                sessionId: currentSessionId,
+                playedAt: new Date().toISOString(),
+                playerName,
+                petType: selectedPetType,
+                score,
+                recommendedProductId: recommendedProduct ? recommendedProduct.id : '',
+                recommendedProductName: recommendedProduct ? recommendedProduct.name : '',
+                userAgent: navigator.userAgent,
+                game: 'keos-slice'
+            };
+        }
+
+        async function persistCurrentResult(recommendedProduct) {
+            const payload = buildResultPayload(recommendedProduct);
+            rememberResultLocally(payload);
+
+            if (!SCORE_WEBHOOK_URL) {
+                updateSaveStatus('Đã lưu tạm kết quả trên trình duyệt này. Dán webhook Google Apps Script để lưu tập trung.');
+                return;
+            }
+
+            queuePendingResult(payload);
+            updateSaveStatus('Đang lưu kết quả...');
+            try {
+                await flushPendingResults();
+                updateSaveStatus('Đã lưu kết quả thành công.');
+            } catch (error) {
+                console.warn('Chưa gửi được kết quả lên webhook:', error);
+                updateSaveStatus('Chưa gửi được lên server, kết quả đã xếp hàng để gửi lại.', true);
+            }
+        }
+
+        function getEligibleProducts(petType = selectedPetType) {
+            const filtered = productAssets.filter(product => product.petType === petType);
+            return filtered.length ? filtered : productAssets;
+        }
+
+        function randomProductForSelectedPet() {
+            const products = getEligibleProducts(selectedPetType);
+            return products[Math.floor(Math.random() * products.length)];
+        }
+
+        function getRecommendedProduct() {
+            let bestProduct = null;
+            let bestCount = 0;
+            for (const product of getEligibleProducts(selectedPetType)) {
+                const count = caughtProductCounts[product.id] || 0;
+                if (count > bestCount) {
+                    bestProduct = product;
+                    bestCount = count;
+                }
+            }
+            return { product: bestProduct, count: bestCount };
+        }
+
+        let gameRunning = false;
+        let animationId = null; 
+        let score = 0, lives = 3;
+        let playerName = '', selectedPetType = 'dog';
+        let caughtProductCounts = {};
+        
+        let bags = [], bagHalves = [], seeds = [], particles = [], sliceTrail = [];
+        let lastFrameTime = 0, spawnTimer = 0, shakeTime = 0, flashColor = null, flashOpacity = 0;
+        let isSwiping = false;
+        let recentSlices = 0, comboTimer = 0;
+
+        let audioCtx;
+        try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } 
+        catch (e) { console.warn("Trình duyệt không hỗ trợ Web Audio API"); }
+
+        function playTone(type) {
+            if (!audioCtx) return;
+            if (audioCtx.state === 'suspended') audioCtx.resume().catch(()=>{});
+            const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+            let dur = 0.2;
+            if (type === 'slice') {
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(800, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(1500, audioCtx.currentTime + 0.1);
+                dur = 0.15; gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+            } else if (type === 'bomb') {
+                osc.type = 'square'; osc.frequency.setValueAtTime(150, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(50, audioCtx.currentTime + 0.5);
+                dur = 0.5; gain.gain.setValueAtTime(0.5, audioCtx.currentTime);
+            } else if (type === 'eat') {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(1000, audioCtx.currentTime);
+                dur = 0.1; gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+            }
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + dur);
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.start(); osc.stop(audioCtx.currentTime + dur);
+        }
+
+        class Bag {
+            // Thêm tham số throwFromLeft để có thể ném nhiều túi cùng 1 hướng (tạo cụm)
+            constructor(throwFromLeft = Math.random() > 0.5) {
+                // Tỉ lệ xuất hiện bom tăng nhẹ khi điểm cao (max 30%)
+                const bombChance = Math.min(0.15 + (score * 0.002), 0.3);
+                this.isBomb = Math.random() < bombChance;
+                
+                if (this.isBomb) {
+                    this.img = negativeImages[Math.floor(Math.random() * negativeImages.length)];
+                    this.productId = null;
+                } else {
+                    const prod = randomProductForSelectedPet();
+                    this.img = prod.img; this.productId = prod.id;
+                }
+                
+                // GIẢM KÍCH THƯỚC: Thu nhỏ túi hạt để tăng độ khó (giảm từ 0.25 xuống 0.15)
+                this.width = canvas.height * 0.15; 
+                this.height = this.width * 1.4;
+                
+                // Thuật toán ném chéo
+                this.x = throwFromLeft ? -this.width : canvas.width + this.width;
+                this.y = canvas.height;
+                
+                // VẬT LÝ MỚI: Bay ngang sâu hơn, rơi nhanh hơn
+                this.vx = (throwFromLeft ? 1 : -1) * (canvas.width * (0.3 + Math.random() * 0.4));
+                this.vy = -(canvas.height * (1.1 + Math.random() * 0.3)); 
+                this.gravity = canvas.height * 1.6; // Trọng lực gắt hơn, rơi lẹ hơn
+                
+                this.angle = 0;
+                this.rotSpeed = (Math.random() - 0.5) * 8; // Xoay tít hơn
+                this.dead = false;
+            }
+
+            update(dt) {
+                this.vy += this.gravity * dt;
+                this.x += this.vx * dt;
+                this.y += this.vy * dt;
+                this.angle += this.rotSpeed * dt;
+                if (this.y > canvas.height + this.height && !this.dead) {
+                    this.dead = true;
+                    if (!this.isBomb) { loseLife(); triggerFlash('#ff0000', 0.3); }
+                }
+            }
+
+            draw() {
+                if (this.dead) return;
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.angle);
+                
+                if (this.isBomb) {
+                    ctx.shadowColor = '#ff0000'; ctx.shadowBlur = 20;
+                    ctx.globalAlpha = 0.8 + Math.sin(performance.now()/100) * 0.2; 
+                } else {
+                    ctx.shadowColor = 'rgba(255, 183, 77, 0.5)'; ctx.shadowBlur = 10;
+                }
+
+                if (this.img && this.img.complete && this.img.naturalWidth !== 0) {
+                    ctx.drawImage(this.img, -this.width/2, -this.height/2, this.width, this.height);
+                } else {
+                    ctx.fillStyle = this.isBomb ? '#ff0000' : '#ffb74d';
+                    ctx.fillRect(-this.width/2, -this.height/2, this.width, this.height);
+                }
+                ctx.restore();
+            }
+        }
+
+        class BagHalf {
+            constructor(bag, isLeft) {
+                this.img = bag.img;
+                this.width = bag.width; this.height = bag.height;
+                this.x = bag.x; this.y = bag.y;
+                this.angle = bag.angle;
+                this.isLeft = isLeft;
+                
+                this.vx = bag.vx + (isLeft ? -200 : 200);
+                this.vy = bag.vy;
+                this.gravity = bag.gravity;
+                this.rotSpeed = bag.rotSpeed + (isLeft ? -5 : 5);
+            }
+            update(dt) {
+                this.vy += this.gravity * dt;
+                this.x += this.vx * dt; this.y += this.vy * dt;
+                this.angle += this.rotSpeed * dt;
+            }
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.angle);
+                
+                ctx.beginPath();
+                if (this.isLeft) { ctx.rect(-this.width/2, -this.height/2, this.width/2, this.height); } 
+                else { ctx.rect(0, -this.height/2, this.width/2, this.height); }
+                ctx.clip();
+                
+                if (this.img && this.img.complete && this.img.naturalWidth !== 0) {
+                    ctx.drawImage(this.img, -this.width/2, -this.height/2, this.width, this.height);
+                } else {
+                    ctx.fillStyle = '#ffb74d';
+                    ctx.fillRect(-this.width/2, -this.height/2, this.width, this.height);
+                }
+                ctx.restore();
+            }
+        }
+
+        class HomingSeed {
+            constructor(x, y, productId) {
+                this.x = x; this.y = y; this.productId = productId;
+                this.vx = (Math.random() - 0.5) * 800;
+                this.vy = (Math.random() - 0.5) * 800;
+                this.size = Math.random() * 6 + 4;
+                this.lifeTimer = 0;
+                this.color = ['#ffb74d', '#e65100', '#fff3e0'][Math.floor(Math.random()*3)];
+                
+                const rect = petAvatar.getBoundingClientRect();
+                this.targetX = rect.left + rect.width/2;
+                this.targetY = rect.top + rect.height/2;
+            }
+            update(dt) {
+                this.lifeTimer += dt;
+                if (this.lifeTimer > 0.2) {
+                    const dx = this.targetX - this.x;
+                    const dy = this.targetY - this.y;
+                    const angle = Math.atan2(dy, dx);
+                    const speed = 1500 * (this.lifeTimer);
+                    this.vx = Math.cos(angle) * speed;
+                    this.vy = Math.sin(angle) * speed;
+                    
+                    if (Math.abs(dx) < 30 && Math.abs(dy) < 30) {
+                        this.dead = true;
+                        playTone('eat');
+                        petAvatar.classList.add('pet-eat-anim');
+                        setTimeout(() => petAvatar.classList.remove('pet-eat-anim'), 100);
+                        // ĐÃ XÓA LOGIC GHI NHẬN Ở ĐÂY, CHUYỂN SANG HÀM checkSlice()
+                    }
+                }
+                this.x += this.vx * dt;
+                this.y += this.vy * dt;
+            }
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill();
+            }
+        }
+
+        class Particle {
+            constructor(x, y, color) {
+                this.x = x; this.y = y; this.color = color;
+                this.vx = (Math.random() - 0.5) * 500; this.vy = (Math.random() - 0.5) * 500;
+                this.life = 1.0; this.size = Math.random() * 10 + 5;
+            }
+            update(dt) { this.x += this.vx*dt; this.y += this.vy*dt; this.life -= dt*1.5; }
+            draw() {
+                if (this.life <= 0) return;
+                ctx.globalAlpha = this.life; ctx.fillStyle = this.color;
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill();
+                ctx.globalAlpha = 1;
+            }
+        }
+
+        function addTrailPoint(x, y) {
+            sliceTrail.push({x, y, time: performance.now()});
+            if (sliceTrail.length > 10) sliceTrail.shift();
+            checkSlice(x, y);
+        }
+
+        function handleInputStart(e) {
+            isSwiping = true; sliceTrail = [];
+            const x = e.touches ? e.touches[0].clientX : e.clientX;
+            const y = e.touches ? e.touches[0].clientY : e.clientY;
+            addTrailPoint(x, y);
+        }
+        function handleInputMove(e) {
+            if (!isSwiping) return;
+            const x = e.touches ? e.touches[0].clientX : e.clientX;
+            const y = e.touches ? e.touches[0].clientY : e.clientY;
+            addTrailPoint(x, y);
+        }
+        function handleInputEnd() { isSwiping = false; }
+
+        canvas.addEventListener('mousedown', handleInputStart);
+        canvas.addEventListener('mousemove', handleInputMove);
+        window.addEventListener('mouseup', handleInputEnd);
+        canvas.addEventListener('touchstart', handleInputStart, {passive: false});
+        canvas.addEventListener('touchmove', handleInputMove, {passive: false});
+        window.addEventListener('touchend', handleInputEnd);
+
+        function checkSlice(px, py) {
+            for (let i = bags.length - 1; i >= 0; i--) {
+                const b = bags[i];
+                if (b.dead) continue;
+                
+                const dist = Math.hypot(px - b.x, py - b.y);
+                // Hitbox nhỏ lại tương ứng với kích thước túi mới
+                if (dist < b.width * 0.6) {
+                    b.dead = true;
+                    if (b.isBomb) {
+                        playTone('bomb'); loseLife();
+                        shakeTime = 0.4; triggerFlash('#ff0000', 0.8);
+                        for(let j=0; j<30; j++) particles.push(new Particle(b.x, b.y, '#333'));
+                    } else {
+                        playTone('slice');
+                        bagHalves.push(new BagHalf(b, true), new BagHalf(b, false));
+                        for(let j=0; j<15; j++) seeds.push(new HomingSeed(b.x, b.y, b.productId));
+                        
+                        // LOGIC MỚI: Ghi nhận trực tiếp TÚI HẠT đã bị chém
+                        if (b.productId) {
+                            caughtProductCounts[b.productId] = (caughtProductCounts[b.productId] || 0) + 1;
+                        }
+
+                        score++;
+                        recentSlices++;
+                        comboTimer = 0.5; 
+                        
+                        document.getElementById('score-display').innerText = score;
+                    }
+                }
+            }
+        }
+
+        function loseLife() {
+            lives--;
+            document.getElementById('lives-container').innerText = '❤️'.repeat(Math.max(0, lives));
+            if (lives <= 0) gameOver();
+        }
+
+
+        function triggerFlash(color, opacity) { flashColor = color; flashOpacity = opacity; }
+
+        function drawCenterLogo() {
+            if (!centerLogoImage || !centerLogoImage.complete || centerLogoImage.naturalWidth === 0) return;
+            const ratio = centerLogoImage.naturalHeight / centerLogoImage.naturalWidth || 0.5;
+            const width = Math.min(canvas.width * 0.34, 420);
+            const height = width * ratio;
+            const x = (canvas.width - width) / 2;
+            const y = (canvas.height - height) / 2 - (height * 0.12);
+
+            ctx.save();
+            ctx.globalAlpha = 0.14;
+            ctx.shadowColor = 'rgba(255,255,255,0.18)';
+            ctx.shadowBlur = 20;
+            ctx.drawImage(centerLogoImage, x, y, width, height);
+            ctx.restore();
+        }
+
+        function update(timestamp) {
+            if (!gameRunning) return;
+            
+            const dt = Math.max(0, Math.min((timestamp - lastFrameTime) / 1000, 0.05));
+            lastFrameTime = timestamp;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawCenterLogo();
+
+            ctx.save();
+            if (shakeTime > 0) {
+                ctx.translate((Math.random()-0.5)*40, (Math.random()-0.5)*40);
+                shakeTime -= dt;
+            }
+
+            if (comboTimer > 0) {
+                comboTimer -= dt;
+                if (comboTimer <= 0) {
+                    if (recentSlices >= 3) {
+                        score += recentSlices; 
+                        document.getElementById('score-display').innerText = score;
+                        comboDisplay.innerText = `COMBO x${recentSlices}!`;
+                        comboDisplay.style.opacity = 1;
+                        setTimeout(() => comboDisplay.style.opacity = 0, 1000);
+                    }
+                    recentSlices = 0;
+                }
+            }
+
+            // SPAWN LOGIC MỚI: Ném theo cụm (Waves) thay vì ném lẻ tẻ
+            const spawnRate = Math.max(0.6, 1.8 - score * 0.03);
+            spawnTimer += dt;
+            if (spawnTimer >= spawnRate) {
+                let itemsToSpawn = 1;
+                // Nếu điểm cao, xác suất ném 2 hoặc 3 món cùng lúc tăng lên
+                if (score > 10 && Math.random() > 0.4) itemsToSpawn = 2;
+                if (score > 30 && Math.random() > 0.6) itemsToSpawn = 3;
+                if (score > 60 && Math.random() > 0.7) itemsToSpawn = 4;
+
+                const throwFromLeft = Math.random() > 0.5;
+                
+                for(let i = 0; i < itemsToSpawn; i++) {
+                    // Ném các món cùng một hướng để tạo cụm hỗn hợp
+                    bags.push(new Bag(throwFromLeft));
+                }
+                spawnTimer = 0;
+            }
+
+            [bags, bagHalves, seeds, particles].forEach(arr => {
+                for (let i = arr.length - 1; i >= 0; i--) {
+                    arr[i].update(dt); arr[i].draw();
+                    if (arr[i].dead || arr[i].y > canvas.height + 300 || arr[i].life <= 0) {
+                        arr.splice(i, 1);
+                    }
+                }
+            });
+
+            ctx.restore(); 
+
+            if (flashOpacity > 0) {
+                ctx.fillStyle = flashColor; ctx.globalAlpha = flashOpacity;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.globalAlpha = 1; flashOpacity -= dt * 2;
+            }
+
+            const now = performance.now();
+            sliceTrail = sliceTrail.filter(p => now - p.time < 120);
+            if (sliceTrail.length > 1) {
+                ctx.beginPath(); ctx.moveTo(sliceTrail[0].x, sliceTrail[0].y);
+                for (let i = 1; i < sliceTrail.length; i++) ctx.lineTo(sliceTrail[i].x, sliceTrail[i].y);
+                ctx.strokeStyle = '#fff'; ctx.lineWidth = 8; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+                ctx.shadowColor = '#00e5ff'; ctx.shadowBlur = 20;
+                ctx.stroke(); ctx.shadowBlur = 0;
+            }
+
+            if (gameRunning) {
+                animationId = requestAnimationFrame(update);
+            }
+        }
+
+        function startGame() {
+            const nameInput = document.getElementById('player-name');
+            const companionInput = document.querySelector('input[name="pet-companion"]:checked');
+            const trimmedName = nameInput.value.trim();
+
+            if (!trimmedName) {
+                updateSaveStatus('');
+                alert('Bạn cần nhập tên trước khi bắt đầu.');
+                nameInput.focus();
+                return;
+            }
+
+            if (!companionInput) {
+                updateSaveStatus('');
+                alert('Hãy chọn bé cún hoặc bé mèo nhé.');
+                return;
+            }
+
+            playerName = trimmedName;
+            selectedPetType = companionInput.value;
+            petAvatar.innerText = selectedPetType === 'dog' ? '🐶' : '🐱';
+
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('game-over-screen').classList.add('hidden');
+            document.getElementById('hud').style.display = 'block';
+            updateSaveStatus('');
+            resetVars();
+
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume().catch(()=>{});
+            }
+
+            flushPendingResults().catch(error => {
+                console.warn('Không đồng bộ được các kết quả chờ trước đó:', error);
+            });
+
+            if (animationId) cancelAnimationFrame(animationId);
+            gameRunning = false;
+
+            const overlay = document.getElementById('countdown-overlay');
+            overlay.style.display = 'flex';
+            let count = 3;
+            overlay.textContent = count;
+            playTone('eat');
+
+            const iv = setInterval(() => {
+                count--;
+                if (count > 0) {
+                    overlay.textContent = count;
+                    playTone('eat');
+                } else if (count === 0) {
+                    overlay.textContent = 'CHÉM!';
+                    playTone('slice');
+                } else {
+                    clearInterval(iv);
+                    overlay.style.display = 'none';
+                    gameRunning = true;
+                    lastFrameTime = performance.now();
+                    animationId = requestAnimationFrame(update);
+                }
+            }, 800);
+        }
+
+        function resetVars() {
+            score = 0;
+            lives = 3;
+            recentSlices = 0;
+            spawnTimer = 0;
+            caughtProductCounts = {};
+            bags = [];
+            bagHalves = [];
+            seeds = [];
+            particles = [];
+            sliceTrail = [];
+            flashColor = null;
+            flashOpacity = 0;
+            shakeTime = 0;
+            resultSubmitted = false;
+            currentSessionId = createSessionId();
+            document.getElementById('score-display').innerText = '0';
+            document.getElementById('lives-container').innerText = '❤️❤️❤️';
+            updateSaveStatus('');
+        }
+
+        async function gameOver() {
+            gameRunning = false;
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+                animationId = null;
+            }
+
+            document.getElementById('hud').style.display = 'none';
+            document.getElementById('game-over-screen').classList.remove('hidden');
+            document.getElementById('high-score-display').innerText = score;
+
+            const petLabel = selectedPetType === 'dog' ? 'bé cún' : 'bé mèo';
+            document.getElementById('final-message').innerText = `${playerName} đã chém được ${score} túi hạt cho ${petLabel}!`;
+
+            const { product, count } = getRecommendedProduct();
+            if (product && count > 0) {
+                recommendationPanel.innerHTML = `
+                    <div class="recommendation-card">
+                        <h3>Gợi ý đúng với ${petLabel}: ${product.name}</h3>
+                        <p>Bạn đã chém <strong>${count} túi</strong> của dòng này trong ván vừa rồi.</p>
+                        <p>${product.intro}</p>
+                        <div class="marketplace-buttons">
+                            <a class="marketplace-link shopee" href="${product.shopeeUrl}" target="_blank" rel="noopener">Mua trên Shopee</a>
+                            <a class="marketplace-link tiktok" href="${product.tiktokUrl}" target="_blank" rel="noopener">Mua trên TikTok Shop</a>
+                        </div>
+                    </div>`;
+            } else {
+                recommendationPanel.innerHTML = `<div class="recommendation-card"><h3>Chưa đủ dữ liệu gợi ý</h3><p>Ván này bạn chưa chém đủ túi hạt dành cho ${petLabel}. Chơi thêm một ván nữa là có gợi ý chuẩn hơn.</p></div>`;
+            }
+
+            if (!resultSubmitted) {
+                resultSubmitted = true;
+                await persistCurrentResult(product || null);
+            }
+        }
+
+        function resetGame() {
+            document.getElementById('game-over-screen').classList.add('hidden');
+            recommendationPanel.innerHTML = '';
+            updateSaveStatus('');
+            startGame();
+        }
+
+        function backToStart() {
+            if (animationId) {
+                cancelAnimationFrame(animationId);
+                animationId = null;
+            }
+            gameRunning = false;
+            document.getElementById('game-over-screen').classList.add('hidden');
+            document.getElementById('hud').style.display = 'none';
+            recommendationPanel.innerHTML = '';
+            updateSaveStatus('');
+            document.getElementById('start-screen').classList.remove('hidden');
+            document.getElementById('player-name').focus();
+        }
+
+        document.getElementById('player-name').addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                startGame();
+            }
+        });
+
+        window.addEventListener('load', () => {
+            const input = document.getElementById('player-name');
+            if (input) input.focus();
+        });
+
+    </script>
+</body>
+</html>
