@@ -65,7 +65,8 @@
             z-index: 10;
             background: rgba(26, 15, 5, 0.85); 
             backdrop-filter: blur(8px);
-            padding: 0 20px; box-sizing: border-box;
+            padding: 24px 20px; box-sizing: border-box;
+            overflow-y: auto;
             animation: fadeIn 0.5s ease-in-out;
         }
 
@@ -101,11 +102,44 @@
             border-left: 4px solid #e65100;
         }
 
-        input[type="text"] {
-            padding: 12px 20px; font-size: 1.2rem; border: 2px solid #e65100;
-            border-radius: 8px; outline: none; width: 260px; text-align: center;
-            margin-bottom: 16px; background: rgba(255,255,255,0.9);
-            font-weight: bold;
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"] {
+            padding: 12px 16px; font-size: 1.05rem; border: 2px solid #e65100;
+            border-radius: 8px; outline: none; width: min(340px, 82vw); text-align: left;
+            margin-bottom: 12px; background: rgba(255,255,255,0.95);
+            font-weight: 700; box-sizing: border-box;
+        }
+
+        input[type="text"]::placeholder,
+        input[type="email"]::placeholder,
+        input[type="tel"]::placeholder {
+            color: #8d6e63;
+            font-weight: 600;
+        }
+
+        .player-form {
+            width: min(360px, 86vw);
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+            margin-bottom: 8px;
+        }
+
+        .field-label {
+            color: #ffe0b2;
+            font-size: 0.95rem;
+            font-weight: 800;
+            text-align: left;
+            margin: 0 0 6px;
+        }
+
+        .helper-note {
+            max-width: 360px;
+            margin: 0 0 14px;
+            color: #ffcc80;
+            font-size: 0.9rem;
+            line-height: 1.45;
         }
         
         button {
@@ -241,7 +275,15 @@
                 💣 Chú ý Cơm, Phở, Bánh Mì là BOM, chém trúng sẽ mất mạng!<br>
                 ✨ Chém liên hoàn (Combo) để nhận thêm điểm.
             </div>
-            <input type="text" id="player-name" placeholder="Tên Ninja của bạn..." maxlength="12">
+            <div class="player-form">
+                <label class="field-label" for="player-full-name">Họ và tên</label>
+                <input type="text" id="player-full-name" placeholder="Nhập họ và tên để nhận thưởng" maxlength="60" autocomplete="name">
+                <label class="field-label" for="player-email">Email</label>
+                <input type="email" id="player-email" placeholder="email@example.com" maxlength="120" autocomplete="email">
+                <label class="field-label" for="player-phone">Số điện thoại</label>
+                <input type="tel" id="player-phone" placeholder="Ví dụ: 0901234567" maxlength="15" inputmode="tel" autocomplete="tel">
+            </div>
+            <p class="helper-note">Thông tin này được dùng để liên hệ trao thưởng. Bạn vẫn có thể chơi lại nhiều lần với cùng một thông tin.</p>
             <div class="choice-group">
                 <label class="choice-card"><input type="radio" name="pet-companion" value="dog" checked><span>🐶 Cún cưng</span></label>
                 <label class="choice-card"><input type="radio" name="pet-companion" value="cat"><span>🐱 Mèo cưng</span></label>
@@ -391,10 +433,31 @@
             document.getElementById('img-negative-bunbo')
         ];
 
-        const SCORE_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbygsnnbJ5EoOfWqv0d65_z7OppHrUmuJj3s89CmkxIqS6m3gTv7C3VR97JwCwLHm6FE/exec'; // Dán URL Web App Google Apps Script vào đây để lưu tập trung
+        const SCORE_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbxbvqd1veu1gZtthvzrCZkQ4Hw7I7LHZW9n-J1O-c2Hmf79BPeM32LsaYloJHRp-CoN/exec'; // Web App Google Apps Script để lưu tập trung
         const RESULT_QUEUE_KEY = 'keosSlicePendingResults';
         const LOCAL_RESULT_HISTORY_KEY = 'keosSliceSavedResults';
         const MAX_LOCAL_RESULTS = 200;
+
+        function normalizePhoneNumber(value) {
+            return String(value || '').trim().replace(/[^\d+]/g, '');
+        }
+
+        function isValidEmail(value) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(value || '').trim());
+        }
+
+        function isValidPhone(value) {
+            const digits = String(value || '').replace(/\D/g, '');
+            return digits.length >= 9 && digits.length <= 11;
+        }
+
+        function getPlayerFormElements() {
+            return {
+                fullNameInput: document.getElementById('player-full-name'),
+                emailInput: document.getElementById('player-email'),
+                phoneInput: document.getElementById('player-phone')
+            };
+        }
 
         function createSessionId() {
             if (window.crypto && typeof window.crypto.randomUUID === 'function') {
@@ -444,17 +507,33 @@
             Object.entries(payload).forEach(([key, value]) => {
                 body.append(key, value == null ? '' : String(value));
             });
+
             const response = await fetch(SCORE_WEBHOOK_URL, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
-                },
-                body: body.toString()
+                body,
+                redirect: 'follow',
+                cache: 'no-store'
             });
+
             if (!response.ok) {
                 throw new Error('HTTP ' + response.status);
             }
-            return response;
+
+            const raw = await response.text().catch(() => '');
+            let data = null;
+            if (raw) {
+                try {
+                    data = JSON.parse(raw);
+                } catch (error) {
+                    data = null;
+                }
+            }
+
+            if (data && data.ok === false) {
+                throw new Error(data.error || 'Webhook trả về lỗi.');
+            }
+
+            return data || true;
         }
 
         async function flushPendingResults() {
@@ -472,10 +551,14 @@
                 sessionId: currentSessionId,
                 playedAt: new Date().toISOString(),
                 playerName,
+                fullName: playerFullName,
+                email: playerEmail,
+                phone: playerPhone,
                 petType: selectedPetType,
                 score,
                 recommendedProductId: recommendedProduct ? recommendedProduct.id : '',
                 recommendedProductName: recommendedProduct ? recommendedProduct.name : '',
+                pageUrl: window.location.href,
                 userAgent: navigator.userAgent,
                 game: 'keos-slice'
             };
@@ -491,15 +574,21 @@
             }
 
             queuePendingResult(payload);
-            updateSaveStatus('Đang lưu kết quả...');
+            updateSaveStatus('Đang lưu điểm và thông tin nhận thưởng...');
             try {
                 await flushPendingResults();
-                updateSaveStatus('Đã lưu kết quả thành công.');
+                updateSaveStatus('Đã lưu điểm và thông tin thành công.');
             } catch (error) {
                 console.warn('Chưa gửi được kết quả lên webhook:', error);
-                updateSaveStatus('Chưa gửi được lên server, kết quả đã xếp hàng để gửi lại.', true);
+                updateSaveStatus('Chưa gửi được lên server. Kết quả đã được giữ lại trên máy này để gửi lại khi bạn mở game lần sau.', true);
             }
         }
+
+        window.addEventListener('online', () => {
+            flushPendingResults().catch(error => {
+                console.warn('Không đồng bộ lại được kết quả chờ:', error);
+            });
+        });
 
         function getEligibleProducts(petType = selectedPetType) {
             const filtered = productAssets.filter(product => product.petType === petType);
@@ -527,7 +616,7 @@
         let gameRunning = false;
         let animationId = null; 
         let score = 0, lives = 3;
-        let playerName = '', selectedPetType = 'dog';
+        let playerName = '', playerFullName = '', playerEmail = '', playerPhone = '', selectedPetType = 'dog';
         let caughtProductCounts = {};
         
         let bags = [], bagHalves = [], seeds = [], particles = [], sliceTrail = [];
@@ -887,14 +976,44 @@
         }
 
         function startGame() {
-            const nameInput = document.getElementById('player-name');
+            const { fullNameInput, emailInput, phoneInput } = getPlayerFormElements();
             const companionInput = document.querySelector('input[name="pet-companion"]:checked');
-            const trimmedName = nameInput.value.trim();
+            const trimmedFullName = fullNameInput.value.trim();
+            const trimmedEmail = emailInput.value.trim().toLowerCase();
+            const normalizedPhone = normalizePhoneNumber(phoneInput.value);
 
-            if (!trimmedName) {
+            if (!trimmedFullName) {
                 updateSaveStatus('');
-                alert('Bạn cần nhập tên trước khi bắt đầu.');
-                nameInput.focus();
+                alert('Bạn cần nhập họ và tên trước khi bắt đầu.');
+                fullNameInput.focus();
+                return;
+            }
+
+            if (!trimmedEmail) {
+                updateSaveStatus('');
+                alert('Bạn cần nhập email để hệ thống liên hệ trao thưởng.');
+                emailInput.focus();
+                return;
+            }
+
+            if (!isValidEmail(trimmedEmail)) {
+                updateSaveStatus('');
+                alert('Email chưa đúng định dạng.');
+                emailInput.focus();
+                return;
+            }
+
+            if (!normalizedPhone) {
+                updateSaveStatus('');
+                alert('Bạn cần nhập số điện thoại để hệ thống liên hệ trao thưởng.');
+                phoneInput.focus();
+                return;
+            }
+
+            if (!isValidPhone(normalizedPhone)) {
+                updateSaveStatus('');
+                alert('Số điện thoại chưa hợp lệ.');
+                phoneInput.focus();
                 return;
             }
 
@@ -904,7 +1023,10 @@
                 return;
             }
 
-            playerName = trimmedName;
+            playerFullName = trimmedFullName;
+            playerName = trimmedFullName;
+            playerEmail = trimmedEmail;
+            playerPhone = normalizedPhone;
             selectedPetType = companionInput.value;
             petAvatar.innerText = selectedPetType === 'dog' ? '🐶' : '🐱';
 
@@ -1024,18 +1146,26 @@
             recommendationPanel.innerHTML = '';
             updateSaveStatus('');
             document.getElementById('start-screen').classList.remove('hidden');
-            document.getElementById('player-name').focus();
+            const { fullNameInput } = getPlayerFormElements();
+            if (fullNameInput) fullNameInput.focus();
         }
 
-        document.getElementById('player-name').addEventListener('keydown', (event) => {
-            if (event.key === 'Enter') {
-                startGame();
-            }
+        ['player-full-name', 'player-email', 'player-phone'].forEach((id) => {
+            const input = document.getElementById(id);
+            if (!input) return;
+            input.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter') {
+                    startGame();
+                }
+            });
         });
 
         window.addEventListener('load', () => {
-            const input = document.getElementById('player-name');
-            if (input) input.focus();
+            const { fullNameInput } = getPlayerFormElements();
+            if (fullNameInput) fullNameInput.focus();
+            flushPendingResults().catch(error => {
+                console.warn('Không gửi lại được dữ liệu chờ khi tải trang:', error);
+            });
         });
 
     </script>
