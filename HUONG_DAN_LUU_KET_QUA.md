@@ -1,60 +1,85 @@
-# Huong dan luu ket qua cho GitHub Pages
+# Hướng dẫn lưu kết quả KEOS Slice bằng Google Apps Script
 
-Game chay tren GitHub Pages la web tinh, vi vay trinh duyet khong the ghi diem vao file trong repo hay chay PHP/Python tren server. Cach gon, de lam va re nhat la:
+## Vì sao bản hiện tại báo “lưu không thành công”
+Có 2 lỗi hay gặp nhất:
 
-1. Tao 1 Google Sheet de luu ket qua.
-2. Mo Apps Script gan voi Google Sheet do.
-3. Deploy script thanh Web App.
-4. Copy URL Web App va dan vao bien `SCORE_WEBHOOK_URL` trong file `index.html`.
+1. `doPost()` bị đặt bên trong `myFunction()` nên Web App không gọi được hàm webhook.
+2. Script không gắn đúng với Google Sheet hoặc chưa điền `SPREADSHEET_ID` khi dùng script độc lập.
 
-## Truong du lieu hien tai game se gui
+Bản `google-apps-script.gs` mới trong gói này đã xử lý cả hai điểm trên.
+
+## Dữ liệu game sẽ gửi lên Sheet
 - `playedAt`
 - `playerName`
+- `fullName`
+- `email`
+- `phone`
 - `petType`
 - `score`
 - `recommendedProductId`
 - `recommendedProductName`
 - `sessionId`
+- `pageUrl`
 - `userAgent`
 - `game`
+- `savedAt`
 
-## Cac buoc thuc hien
+## Cách làm đúng
 
-### 1) Tao Google Sheet
-Tao 1 file Google Sheets moi, dat ten vi du: `Keos Slice Results`.
+### 1. Tạo Google Sheet
+Tạo 1 file Google Sheets mới, ví dụ: `Keos Slice Results`.
 
-### 2) Mo Apps Script
-Trong Google Sheet vao:
+### 2. Mở Apps Script
+Trong Google Sheet vào:
 - Extensions
 - Apps Script
 
-### 3) Dan file script mau
-Dan noi dung trong file `google-apps-script.gs` vao project Apps Script.
+### 3. Dán file script mới
+Xóa code cũ và dán toàn bộ nội dung trong file `google-apps-script.gs` mới.
 
-### 4) Deploy Web App
+### 4. Nếu script không gắn trực tiếp với Sheet
+Điền `SPREADSHEET_ID` ở đầu file:
+
+```js
+const SPREADSHEET_ID = 'dán ID của Google Sheet vào đây';
+```
+
+Nếu script mở từ chính Google Sheet đó thì có thể để trống.
+
+### 5. Deploy Web App
 Trong Apps Script:
 - Deploy
 - New deployment
-- Chon type: Web app
+- Type: Web app
 - Execute as: Me
 - Who has access: Anyone
 - Deploy
 
-Sau do copy URL Web App.
+Sau đó copy URL Web App dạng `/exec`.
 
-### 5) Dan URL vao game
-Mo `index.html`, tim dong:
+### 6. Kiểm tra webhook trước khi gắn vào game
+Mở URL `/exec` trên trình duyệt.
+Nếu thấy JSON kiểu:
 
-```js
-const SCORE_WEBHOOK_URL = '';
+```json
+{"ok":true,"message":"KEOS Slice webhook is running"}
 ```
 
-Dan URL vua copy vao giua dau nhay.
+thì webhook đã sống.
 
-### 6) Dang lai len GitHub Pages
-Commit file len repo va deploy lai.
+### 7. Gắn URL vào game
+Trong `index.html`, biến này đã được điền sẵn:
 
-## Ghi chu quan trong
-- Neu chua dan webhook, game van luu tam ket qua tren localStorage cua trinh duyet hien tai.
-- Neu muon trao thuong, ban nen them 1 truong lien he nhu so dien thoai, Zalo hoac email. Hien tai game moi luu ten va diem.
-- Game client-side co the bi sua diem bang DevTools. Neu dung de trao thuong, ban nen kiem tra top diem thu cong hoac bo sung backend xac thuc sau.
+```js
+const SCORE_WEBHOOK_URL = '...';
+```
+
+Nếu bạn đổi Web App mới thì thay lại URL này.
+
+### 8. Deploy lại lên Vercel hoặc GitHub Pages
+Upload lại file `index.html` mới lên host.
+
+## Ghi chú vận hành
+- Game đã lưu tạm localStorage nếu gửi webhook lỗi.
+- Khi người chơi mở lại game trên cùng thiết bị, hệ thống sẽ tự thử gửi lại các kết quả đang chờ.
+- Vì đây là game client-side, điểm vẫn có thể bị sửa bằng DevTools. Khi trao thưởng, nên đối chiếu thêm `email`, `phone`, `sessionId` và thời gian chơi.
