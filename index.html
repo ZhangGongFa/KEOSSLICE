@@ -197,12 +197,16 @@
         }
 
         .start-brand-panel {
-            text-align: left;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
 
         .start-brand-panel h1,
         .start-brand-panel h2 {
-            text-align: left;
+            text-align: center;
         }
 
         .start-brand-panel h1 {
@@ -255,10 +259,127 @@
         }
 
         .audio-hint {
-            margin: 10px 0 0;
-            color: rgba(255, 224, 178, 0.78);
-            font-size: 0.82rem;
-            line-height: 1.3;
+            display: none;
+        }
+
+        .brand-logo {
+            display: block;
+            width: clamp(170px, 22vw, 260px);
+            max-width: 78%;
+            height: auto;
+            margin: 0 auto 12px;
+            filter: drop-shadow(0 8px 18px rgba(0,0,0,0.28));
+        }
+
+        .brand-logo.brand-logo-over {
+            width: clamp(150px, 18vw, 220px);
+            margin-bottom: 8px;
+        }
+
+        .story-card {
+            width: 100%;
+            max-width: 620px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.07));
+            border: 1px solid rgba(255, 183, 77, 0.28);
+            border-radius: 16px;
+            padding: 16px 18px;
+            box-sizing: border-box;
+            color: #fff7ef;
+            line-height: 1.58;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+        }
+
+        .story-card p {
+            margin: 0;
+        }
+
+        .story-card p + p {
+            margin-top: 10px;
+        }
+
+        .goal-chip {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 14px;
+            padding: 10px 16px;
+            border-radius: 999px;
+            background: rgba(230, 81, 0, 0.18);
+            border: 1px solid rgba(255, 183, 77, 0.36);
+            color: #ffe0b2;
+            font-weight: 800;
+            font-size: 0.95rem;
+            letter-spacing: 0.2px;
+        }
+
+        .game-over-brand {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 8px;
+        }
+
+        .final-score-line {
+            font-size: clamp(1.6rem, 3vw, 2rem);
+            color: #ffb74d;
+            font-weight: bold;
+            margin: 8px 0 10px;
+        }
+
+        #voucher-panel {
+            width: min(100%, 560px);
+            margin: 0 0 18px;
+        }
+
+        .voucher-card {
+            background: linear-gradient(180deg, rgba(255,255,255,0.11), rgba(255,255,255,0.06));
+            border: 1px solid rgba(255, 183, 77, 0.32);
+            border-radius: 16px;
+            padding: 16px 18px;
+            color: #fff;
+            text-align: left;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+        }
+
+        .voucher-card h3 {
+            margin: 0 0 8px;
+            color: #ffd699;
+            font-size: 1.12rem;
+        }
+
+        .voucher-card p {
+            margin: 0;
+            color: #fff4e5;
+            line-height: 1.5;
+        }
+
+        .voucher-progress {
+            margin: 14px 0 10px;
+            width: 100%;
+            height: 12px;
+            background: rgba(255,255,255,0.12);
+            border-radius: 999px;
+            overflow: hidden;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.18);
+        }
+
+        .voucher-progress-fill {
+            height: 100%;
+            border-radius: inherit;
+            background: linear-gradient(90deg, #ffb74d, #ff8f00, #ff6d00);
+            box-shadow: 0 0 16px rgba(255, 143, 0, 0.55);
+        }
+
+        .voucher-meta {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+            color: #ffcc80;
+            font-size: 0.9rem;
+            font-weight: 700;
         }
         
         button {
@@ -345,7 +466,10 @@
         }
         .choice-card input:checked + span { border-color: #ffb74d; background: #e65100; }
 
-        #game-over-screen { background: rgba(0,0,0,0.9); overflow-y: auto; }
+        #game-over-screen {
+            background: rgba(0,0,0,0.9);
+            overflow-y: auto;
+        }
         .recommendation-card {
             background: #2a1a10; border: 2px solid #e65100; border-radius: 12px; padding: 16px;
             text-align: left; color: #fff; margin-bottom: 20px;
@@ -433,9 +557,31 @@
                 margin-bottom: 10px;
             }
 
-            .audio-hint {
-                font-size: 0.72rem;
-                margin-top: 8px;
+            .goal-chip {
+                margin-top: 10px;
+                padding: 8px 12px;
+                font-size: 0.78rem;
+            }
+
+            .brand-logo {
+                width: clamp(150px, 28vw, 220px);
+                margin-bottom: 10px;
+            }
+
+            .story-card {
+                padding: 12px 14px;
+                border-radius: 14px;
+                font-size: 0.86rem;
+                line-height: 1.48;
+            }
+
+            .final-score-line {
+                font-size: 1.35rem;
+                margin-bottom: 8px;
+            }
+
+            .voucher-card {
+                padding: 14px;
             }
 
             .choice-group {
@@ -525,6 +671,7 @@
         <img id="img-negative-banhmi" src="negative_banhmi.png" alt="Bánh mì">
         <img id="img-negative-pho" src="negative_pho.png" alt="Phở">
         <img id="img-negative-bunbo" src="negative_bunbo.png" alt="Bún bò">
+        <img id="img-mascot-sheet" src="keos_mascots_sheet.png" alt="Keos Mascot Sheet">
     </div>
 
     <div id="game-container">
@@ -532,13 +679,14 @@
         <div id="start-screen" class="ui-screen">
             <div class="screen-shell start-shell">
                 <div class="start-brand-panel">
+                    <img class="brand-logo" src="keos_logo_watermark.png" alt="Keos Logo">
                     <h1>KEOS SLICE</h1>
                     <h2>Ninja Cắt Hạt Dinh Dưỡng</h2>
-                    <div class="instructions">
-                        ⚔️ Vuốt thật nhanh để chém các túi hạt KEOS.<br>
-                        💣 BOM sẽ bay theo quỹ đạo riêng để dễ nhận biết hơn, nhưng chém trúng vẫn mất mạng.<br>
-                        ✨ Chém liên hoàn để kích hoạt combo và kiếm thêm điểm thưởng.
+                    <div class="story-card">
+                        <p>Trong căn bếp của KEOS, mỗi túi hạt bật lên là một bài kiểm tra dành cho ninja chăm bé. Nhiệm vụ của bạn là lướt thật gọn để chém đúng những túi hạt dinh dưỡng đang bay lên giữa màn chơi.</p>
+                        <p>Giữa nhịp bay ấy vẫn có những món ăn “ngụy trang” xuất hiện để đánh lạc hướng. Giữ nhịp tay thật mượt, nối combo thật đẹp và tích lũy điểm số để đưa bé cún hoặc bé mèo tiến gần hơn tới phần thưởng từ KEOS.</p>
                     </div>
+                    <div class="goal-chip">🎁 Chạm mốc 200 điểm để mở cơ hội nhận voucher mua sắm từ KEOS</div>
                 </div>
                 <div class="start-form-panel">
                     <div class="player-form">
@@ -555,16 +703,19 @@
                         <label class="choice-card"><input type="radio" name="pet-companion" value="cat"><span>🐱 Mèo cưng</span></label>
                     </div>
                     <button onclick="startGame()">Bắt Đầu Chém</button>
-                    <p class="audio-hint">🔊 Nhạc nền sẽ tự phát khi bạn bấm bắt đầu và đã upload đủ file.</p>
                 </div>
             </div>
         </div>
 
         <!-- Màn hình game over sẽ được ẩn mặc định -->
         <div id="game-over-screen" class="ui-screen hidden">
-            <h1 style="font-size: 3rem;">Hết Mạng!</h1>
+            <div class="game-over-brand">
+                <img class="brand-logo brand-logo-over" src="keos_logo_watermark.png" alt="Keos Logo">
+                <h1 style="font-size: 3rem; margin-bottom: 0;">Game Over</h1>
+            </div>
             <h2 id="final-message" style="color:#fff;"></h2>
-            <p style="font-size: 2rem; color: #ffb74d; font-weight: bold;">Điểm ván này: <span id="high-score-display">0</span></p>
+            <p class="final-score-line">Điểm ván này: <span id="high-score-display">0</span></p>
+            <div id="voucher-panel"></div>
             <div id="recommendation-panel" style="width: 100%; max-width: 500px;"></div>
             <p id="save-status"></p>
             <div class="game-over-actions">
@@ -593,7 +744,9 @@
         const petAvatar = document.getElementById('pet-avatar');
         const comboDisplay = document.getElementById('combo-display');
         const recommendationPanel = document.getElementById('recommendation-panel');
+        const voucherPanel = document.getElementById('voucher-panel');
         const centerLogoImage = document.getElementById('img-keos-logo');
+        const mascotSheetImage = document.getElementById('img-mascot-sheet');
         const saveStatusEl = document.getElementById('save-status');
         const startScreen = document.getElementById('start-screen');
         const startScreenShell = document.querySelector('#start-screen .screen-shell');
@@ -753,10 +906,53 @@
             document.getElementById('img-negative-bunbo')
         ];
 
-        const SCORE_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbyoA0Xc4okERn0qcbZp18MknFEnNu-ZJieq0lxT6jdCqzCRAmbA20oV_nnZxB2kLGOK/exec'; // Web App Google Apps Script để lưu tập trung
+
+        const SCORE_WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycbxWesTWQmGna4pXCSYSazjLK3Sw3B6ylZIQsF8MrQZBuojHapuZDXD_PvzqHQz71JW2/exec'; // Web App Google Apps Script để lưu tập trung
         const RESULT_QUEUE_KEY = 'keosSlicePendingResults';
         const LOCAL_RESULT_HISTORY_KEY = 'keosSliceSavedResults';
         const MAX_LOCAL_RESULTS = 200;
+        const VOUCHER_MILESTONE = 200;
+        const MASCOT_LIBRARY = {
+            cat: [
+                { sx: 50, sy: 122, sw: 187, sh: 258 },
+                { sx: 326, sy: 90, sw: 208, sh: 283 },
+                { sx: 626, sy: 100, sw: 216, sh: 282 },
+                { sx: 905, sy: 114, sw: 265, sh: 279 },
+                { sx: 1200, sy: 116, sw: 253, sh: 277 },
+                { sx: 1499, sy: 95, sw: 237, sh: 296 },
+                { sx: 1727, sy: 67, sw: 251, sh: 345 },
+                { sx: 1994, sy: 83, sw: 231, sh: 317 },
+                { sx: 2240, sy: 65, sw: 256, sh: 347 }
+            ],
+            dog: [
+                { sx: 59, sy: 492, sw: 216, sh: 294 },
+                { sx: 364, sy: 496, sw: 189, sh: 258 },
+                { sx: 657, sy: 524, sw: 175, sh: 208 },
+                { sx: 929, sy: 521, sw: 196, sh: 201 },
+                { sx: 1204, sy: 502, sw: 199, sh: 235 },
+                { sx: 1460, sy: 476, sw: 209, sh: 282 },
+                { sx: 1726, sy: 476, sw: 246, sh: 282 },
+                { sx: 2006, sy: 476, sw: 260, sh: 299 },
+                { sx: 33, sy: 879, sw: 180, sh: 244 },
+                { sx: 267, sy: 872, sw: 235, sh: 271 },
+                { sx: 586, sy: 857, sw: 230, sh: 301 },
+                { sx: 871, sy: 844, sw: 238, sh: 275 },
+                { sx: 1154, sy: 835, sw: 282, sh: 320 }
+            ]
+        };
+        const MASCOT_LAYOUT_PRESETS = {
+            desktop: [
+                { xNorm: 0.16, yNorm: 0.30, widthNorm: 0.145, alpha: 0.085, rotation: -0.05 },
+                { xNorm: 0.50, yNorm: 0.73, widthNorm: 0.155, alpha: 0.075, rotation: 0.04 },
+                { xNorm: 0.84, yNorm: 0.33, widthNorm: 0.150, alpha: 0.085, rotation: 0.05 }
+            ],
+            compact: [
+                { xNorm: 0.18, yNorm: 0.32, widthNorm: 0.165, alpha: 0.085, rotation: -0.05 },
+                { xNorm: 0.52, yNorm: 0.72, widthNorm: 0.175, alpha: 0.075, rotation: 0.03 },
+                { xNorm: 0.84, yNorm: 0.34, widthNorm: 0.165, alpha: 0.085, rotation: 0.05 }
+            ]
+        };
+
 
         function normalizePhoneNumber(value) {
             return String(value || '').trim().replace(/[^\d+]/g, '');
@@ -867,6 +1063,7 @@
         }
 
         function buildResultPayload(recommendedProduct) {
+            const voucherData = getVoucherProgressData(score);
             return {
                 sessionId: currentSessionId,
                 playedAt: new Date().toISOString(),
@@ -876,6 +1073,9 @@
                 phone: playerPhone,
                 petType: selectedPetType,
                 score,
+                voucherMilestone: voucherData.milestone,
+                voucherEligible: voucherData.achieved,
+                pointsToVoucher: voucherData.remaining,
                 recommendedProductId: recommendedProduct ? recommendedProduct.id : '',
                 recommendedProductName: recommendedProduct ? recommendedProduct.name : '',
                 pageUrl: window.location.href,
@@ -940,6 +1140,7 @@
         let caughtProductCounts = {};
         
         let bags = [], bagHalves = [], seeds = [], particles = [], sliceTrail = [], pendingSpawns = [];
+        let activeMascotScene = [];
         let lastFrameTime = 0, spawnTimer = 0, shakeTime = 0, flashColor = null, flashOpacity = 0;
         let isSwiping = false;
         let recentSlices = 0, comboTimer = 0;
@@ -990,19 +1191,125 @@
             return items;
         }
 
+        function getMascotLayoutPreset() {
+            return canvas.width < 900 ? MASCOT_LAYOUT_PRESETS.compact : MASCOT_LAYOUT_PRESETS.desktop;
+        }
+
+        function createRandomMascotScene(petType = selectedPetType) {
+            const library = MASCOT_LIBRARY[petType] || [];
+            if (!library.length) return [];
+
+            const layoutPool = getMascotLayoutPreset().map(sprite => ({ ...sprite }));
+            const chosenLayouts = shuffleArray(layoutPool).slice(0, Math.min(3, layoutPool.length));
+            const chosenIndices = shuffleArray(Array.from({ length: library.length }, (_, index) => index))
+                .slice(0, Math.min(chosenLayouts.length, library.length));
+
+            return chosenLayouts.map((layout, index) => ({
+                ...layout,
+                libraryIndex: chosenIndices[index],
+                xNorm: clamp(layout.xNorm + randomBetween(-0.025, 0.025), 0.10, 0.90),
+                yNorm: clamp(layout.yNorm + randomBetween(-0.035, 0.035), 0.18, 0.82),
+                widthNorm: layout.widthNorm * randomBetween(0.94, 1.08),
+                alpha: clamp((layout.alpha || 0.08) + randomBetween(-0.012, 0.012), 0.05, 0.11),
+                rotation: (layout.rotation || 0) + randomBetween(-0.08, 0.08)
+            }));
+        }
+
+        function refreshMascotScene() {
+            activeMascotScene = createRandomMascotScene(selectedPetType);
+        }
+
+
         function average(values) {
             if (!values.length) return 0;
             return values.reduce((sum, value) => sum + value, 0) / values.length;
         }
 
+        function getVoucherProgressData(currentScore = score) {
+            const safeScore = Math.max(0, Number(currentScore || 0));
+            const remaining = Math.max(0, VOUCHER_MILESTONE - safeScore);
+            return {
+                score: safeScore,
+                milestone: VOUCHER_MILESTONE,
+                remaining,
+                achieved: safeScore >= VOUCHER_MILESTONE,
+                progressPercent: Math.min(100, (safeScore / VOUCHER_MILESTONE) * 100)
+            };
+        }
+
+        function renderVoucherProgress(currentScore = score) {
+            if (!voucherPanel) return;
+            const voucherData = getVoucherProgressData(currentScore);
+            const headline = voucherData.achieved
+                ? `Bạn đã chạm mốc ${voucherData.milestone} điểm`
+                : `Còn ${voucherData.remaining} điểm nữa là chạm mốc ${voucherData.milestone}`;
+            const message = voucherData.achieved
+                ? `Ván chơi ${voucherData.score} điểm này đã được ghi nhận vào nhóm người chơi có cơ hội nhận voucher mua sắm từ KEOS.`
+                : `Bạn vừa ghi được ${voucherData.score} điểm. Chỉ cần thêm ${voucherData.remaining} điểm nữa là mở ra cơ hội nhận voucher mua sắm từ KEOS ở mốc tiếp theo.`;
+
+            voucherPanel.innerHTML = `
+                <div class="voucher-card">
+                    <h3>${headline}</h3>
+                    <p>${message}</p>
+                    <div class="voucher-progress" aria-hidden="true">
+                        <div class="voucher-progress-fill" style="width:${voucherData.progressPercent.toFixed(2)}%"></div>
+                    </div>
+                    <div class="voucher-meta">
+                        <span>${voucherData.score} / ${voucherData.milestone} điểm</span>
+                        <span>${voucherData.achieved ? 'Đã ghi nhận cơ hội voucher' : `Cách mốc thưởng ${voucherData.remaining} điểm`}</span>
+                    </div>
+                </div>`;
+        }
+
+        function clearVoucherProgress() {
+            if (voucherPanel) voucherPanel.innerHTML = '';
+        }
+
+
+        function drawMascotBackdrop() {
+            if (!mascotSheetImage || !mascotSheetImage.complete || mascotSheetImage.naturalWidth === 0) return;
+            const scene = activeMascotScene || [];
+            const library = MASCOT_LIBRARY[selectedPetType] || [];
+            if (!scene.length || !library.length) return;
+
+            ctx.save();
+            scene.forEach((sprite) => {
+                const source = library[sprite.libraryIndex];
+                if (!source) return;
+                const aspectRatio = source.sh / source.sw;
+                const drawWidth = canvas.width * sprite.widthNorm;
+                const drawHeight = drawWidth * aspectRatio;
+                const drawX = canvas.width * sprite.xNorm - (drawWidth / 2);
+                const drawY = canvas.height * sprite.yNorm - (drawHeight / 2);
+                ctx.save();
+                ctx.translate(drawX + drawWidth / 2, drawY + drawHeight / 2);
+                ctx.rotate(sprite.rotation || 0);
+                ctx.globalAlpha = sprite.alpha || 0.06;
+                ctx.drawImage(
+                    mascotSheetImage,
+                    source.sx,
+                    source.sy,
+                    source.sw,
+                    source.sh,
+                    -drawWidth / 2,
+                    -drawHeight / 2,
+                    drawWidth,
+                    drawHeight
+                );
+                ctx.restore();
+            });
+            ctx.restore();
+        }
+
+
         const DIFFICULTY_TIERS = [
             {
                 maxScore: 9,
-                label: 'Nhanh tay',
-                spawnRate: 1.02,
-                foodCountMin: 2,
-                foodCountMax: 3,
-                bagScale: 0.90,
+                label: 'Dễ',
+                spawnRate: 1.10,
+                foodCountMin: 1,
+                foodCountMax: 1,
+                bagScale: 0.92,
                 minHorizontalTravel: 0.20,
                 centerSpread: 0.18,
                 waveDelayStep: 0.082,
@@ -1014,7 +1321,7 @@
                 foodGravityMax: 1.46,
                 bombGravityMin: 1.48,
                 bombGravityMax: 1.62,
-                bombChance: 0.04,
+                bombChance: 0.03,
                 bombDelayMin: 0.34,
                 bombDelayMax: 0.46,
                 foodCurve: 0.014,
@@ -1023,12 +1330,12 @@
                 bombSizeScale: 0.96
             },
             {
-                maxScore: 24,
-                label: 'Tăng tốc',
+                maxScore: 49,
+                label: 'Trung bình',
                 spawnRate: 0.90,
-                foodCountMin: 2,
-                foodCountMax: 4,
-                bagScale: 0.86,
+                foodCountMin: 1,
+                foodCountMax: 2,
+                bagScale: 0.88,
                 minHorizontalTravel: 0.22,
                 centerSpread: 0.20,
                 waveDelayStep: 0.070,
@@ -1040,7 +1347,7 @@
                 foodGravityMax: 1.60,
                 bombGravityMin: 1.60,
                 bombGravityMax: 1.76,
-                bombChance: 0.06,
+                bombChance: 0.05,
                 bombDelayMin: 0.30,
                 bombDelayMax: 0.40,
                 foodCurve: 0.016,
@@ -1049,12 +1356,12 @@
                 bombSizeScale: 0.95
             },
             {
-                maxScore: 44,
+                maxScore: 79,
                 label: 'Khó',
-                spawnRate: 0.78,
-                foodCountMin: 3,
-                foodCountMax: 4,
-                bagScale: 0.82,
+                spawnRate: 0.80,
+                foodCountMin: 2,
+                foodCountMax: 3,
+                bagScale: 0.84,
                 minHorizontalTravel: 0.24,
                 centerSpread: 0.22,
                 waveDelayStep: 0.062,
@@ -1066,7 +1373,7 @@
                 foodGravityMax: 1.74,
                 bombGravityMin: 1.76,
                 bombGravityMax: 1.94,
-                bombChance: 0.09,
+                bombChance: 0.06,
                 bombDelayMin: 0.26,
                 bombDelayMax: 0.36,
                 foodCurve: 0.018,
@@ -1075,12 +1382,12 @@
                 bombSizeScale: 0.93
             },
             {
-                maxScore: 69,
+                maxScore: Number.POSITIVE_INFINITY,
                 label: 'Rất khó',
-                spawnRate: 0.66,
+                spawnRate: 0.60,
                 foodCountMin: 3,
-                foodCountMax: 5,
-                bagScale: 0.78,
+                foodCountMax: 4,
+                bagScale: 0.80,
                 minHorizontalTravel: 0.26,
                 centerSpread: 0.23,
                 waveDelayStep: 0.055,
@@ -1092,7 +1399,7 @@
                 foodGravityMax: 1.92,
                 bombGravityMin: 1.94,
                 bombGravityMax: 2.14,
-                bombChance: 0.12,
+                bombChance: 0.08,
                 bombDelayMin: 0.22,
                 bombDelayMax: 0.30,
                 foodCurve: 0.020,
@@ -1103,10 +1410,10 @@
             {
                 maxScore: Number.POSITIVE_INFINITY,
                 label: 'Siêu khó',
-                spawnRate: 0.54,
+                spawnRate: 0.60,
                 foodCountMin: 4,
-                foodCountMax: 6,
-                bagScale: 0.74,
+                foodCountMax: 5,
+                bagScale: 0.76,
                 minHorizontalTravel: 0.28,
                 centerSpread: 0.24,
                 waveDelayStep: 0.048,
@@ -1118,7 +1425,7 @@
                 foodGravityMax: 2.14,
                 bombGravityMin: 2.10,
                 bombGravityMax: 2.34,
-                bombChance: 0.16,
+                bombChance: 0.10,
                 bombDelayMin: 0.18,
                 bombDelayMax: 0.26,
                 foodCurve: 0.022,
@@ -1187,6 +1494,10 @@
 
                 const heightToApex = Math.max(this.height * 1.2, this.y - apexY);
                 this.vy = -Math.sqrt(2 * this.gravity * heightToApex);
+                // Lưu lại vận tốc ban đầu và thời điểm sinh để phục vụ tính toán tiến trình di chuyển
+                this.initialVy = this.vy;
+                this.spawnTime = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+
                 const timeToApex = Math.max(0.28, -this.vy / this.gravity);
                 this.vx = clamp((targetX - startX) / timeToApex, -canvas.width * 1.2, canvas.width * 1.2);
 
@@ -1659,6 +1970,7 @@
             lastFrameTime = timestamp;
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawMascotBackdrop();
             drawCenterLogo();
 
             ctx.save();
@@ -1684,9 +1996,27 @@
             const currentDifficulty = getDifficultyTier(score);
             const spawnRate = currentDifficulty.spawnRate;
             spawnTimer += dt;
-            while (spawnTimer >= spawnRate) {
-                enqueueWave();
-                spawnTimer -= spawnRate;
+            if (spawnTimer >= spawnRate) {
+                let canSpawn = true;
+                // Chỉ tạo đợt mới khi các túi hiện tại đã bay ít nhất 70% quãng đường dự kiến
+                for (let i = 0; i < bags.length; i++) {
+                    const b = bags[i];
+                    if (b.dead) continue;
+                    if (typeof b.initialVy === 'number' && typeof b.gravity === 'number' && typeof b.spawnTime === 'number') {
+                        const totalFlight = Math.abs(2 * b.initialVy / b.gravity);
+                        const nowTime = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+                        const elapsedSec = (nowTime - b.spawnTime) / 1000;
+                        const ratio = elapsedSec / totalFlight;
+                        if (ratio < 0.7) {
+                            canSpawn = false;
+                            break;
+                        }
+                    }
+                }
+                if (canSpawn) {
+                    enqueueWave();
+                    spawnTimer = 0;
+                }
             }
             processPendingSpawns(dt);
 
@@ -1859,8 +2189,10 @@
             shakeTime = 0;
             resultSubmitted = false;
             currentSessionId = createSessionId();
+            refreshMascotScene();
             document.getElementById('score-display').innerText = '0';
             document.getElementById('lives-container').innerText = '❤️❤️❤️';
+            clearVoucherProgress();
             updateSaveStatus('');
         }
 
@@ -1877,7 +2209,8 @@
             document.getElementById('high-score-display').innerText = score;
 
             const petLabel = selectedPetType === 'dog' ? 'bé cún' : 'bé mèo';
-            document.getElementById('final-message').innerText = `${playerName} đã chém được ${score} túi hạt cho ${petLabel}!`;
+            document.getElementById('final-message').innerText = `${playerName}, bạn vừa hoàn thành đường chém với ${score} điểm dành cho ${petLabel}.`;
+            renderVoucherProgress(score);
 
             const { product, count } = getRecommendedProduct();
             if (product && count > 0) {
@@ -1904,6 +2237,7 @@
         function resetGame() {
             document.getElementById('game-over-screen').classList.add('hidden');
             recommendationPanel.innerHTML = '';
+            clearVoucherProgress();
             updateSaveStatus('');
             startGame();
         }
@@ -1918,6 +2252,7 @@
             document.getElementById('game-over-screen').classList.add('hidden');
             document.getElementById('hud').style.display = 'none';
             recommendationPanel.innerHTML = '';
+            clearVoucherProgress();
             updateSaveStatus('');
             document.getElementById('start-screen').classList.remove('hidden');
             scheduleStartScreenFit();

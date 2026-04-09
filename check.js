@@ -29,8 +29,8 @@
         function fitStartScreenLayout() {
             if (!startScreen || !startScreenShell || startScreen.classList.contains('hidden')) return;
             startScreenShell.style.transform = 'scale(1)';
-            const availableWidth = Math.max(260, gameContainer.clientWidth - 16);
-            const availableHeight = Math.max(220, gameContainer.clientHeight - 16);
+            const availableWidth = Math.max(260, gameContainer.clientWidth - 28);
+            const availableHeight = Math.max(220, gameContainer.clientHeight - 28);
             const shellWidth = startScreenShell.offsetWidth;
             const shellHeight = startScreenShell.offsetHeight;
             if (!shellWidth || !shellHeight) return;
@@ -46,15 +46,13 @@
             const { width: viewportWidth, height: viewportHeight } = getViewportMetrics();
             syncViewportCssVars(viewportWidth, viewportHeight);
 
-            let gameWidth = viewportWidth;
-            let gameHeight = Math.round(gameWidth / GAME_ASPECT_RATIO);
-            if (gameHeight > viewportHeight) {
-                gameHeight = viewportHeight;
-                gameWidth = Math.round(gameHeight * GAME_ASPECT_RATIO);
-            }
+            const gameWidth = viewportWidth;
+            const gameHeight = viewportHeight;
 
             gameContainer.style.width = gameWidth + 'px';
             gameContainer.style.height = gameHeight + 'px';
+            canvas.style.width = gameWidth + 'px';
+            canvas.style.height = gameHeight + 'px';
             canvas.width = gameWidth;
             canvas.height = gameHeight;
             scheduleStartScreenFit();
@@ -411,138 +409,138 @@
 
         const DIFFICULTY_TIERS = [
             {
-                maxScore: 11,
-                label: 'Khởi động',
-                spawnRate: 1.14,
-                foodCountMin: 1,
-                foodCountMax: 2,
-                bagScale: 1.08,
-                minHorizontalTravel: 0.14,
-                centerSpread: 0.12,
-                waveDelayStep: 0.10,
-                foodApexMin: 0.28,
+                maxScore: 9,
+                label: 'Nhanh tay',
+                spawnRate: 1.02,
+                foodCountMin: 2,
+                foodCountMax: 3,
+                bagScale: 0.90,
+                minHorizontalTravel: 0.20,
+                centerSpread: 0.18,
+                waveDelayStep: 0.082,
+                foodApexMin: 0.26,
                 foodApexMax: 0.36,
                 bombApexMin: 0.22,
-                bombApexMax: 0.29,
-                foodGravityMin: 1.20,
-                foodGravityMax: 1.32,
-                bombGravityMin: 1.30,
-                bombGravityMax: 1.42,
-                bombChance: 0.03,
-                bombDelayMin: 0.36,
-                bombDelayMax: 0.48,
-                foodCurve: 0.012,
-                bombCurve: 0.030,
-                bombTargetOffset: 0.18,
-                bombSizeScale: 1.00
-            },
-            {
-                maxScore: 24,
-                label: 'Nhanh tay',
-                spawnRate: 1.00,
-                foodCountMin: 2,
-                foodCountMax: 3,
-                bagScale: 1.02,
-                minHorizontalTravel: 0.16,
-                centerSpread: 0.14,
-                waveDelayStep: 0.085,
-                foodApexMin: 0.24,
-                foodApexMax: 0.33,
-                bombApexMin: 0.20,
-                bombApexMax: 0.27,
-                foodGravityMin: 1.28,
-                foodGravityMax: 1.40,
-                bombGravityMin: 1.40,
-                bombGravityMax: 1.54,
-                bombChance: 0.05,
+                bombApexMax: 0.30,
+                foodGravityMin: 1.34,
+                foodGravityMax: 1.46,
+                bombGravityMin: 1.48,
+                bombGravityMax: 1.62,
+                bombChance: 0.04,
                 bombDelayMin: 0.34,
-                bombDelayMax: 0.44,
+                bombDelayMax: 0.46,
                 foodCurve: 0.014,
-                bombCurve: 0.032,
-                bombTargetOffset: 0.19,
-                bombSizeScale: 0.98
-            },
-            {
-                maxScore: 44,
-                label: 'Tăng tốc',
-                spawnRate: 0.88,
-                foodCountMin: 2,
-                foodCountMax: 3,
-                bagScale: 0.98,
-                minHorizontalTravel: 0.18,
-                centerSpread: 0.16,
-                waveDelayStep: 0.075,
-                foodApexMin: 0.21,
-                foodApexMax: 0.29,
-                bombApexMin: 0.18,
-                bombApexMax: 0.25,
-                foodGravityMin: 1.38,
-                foodGravityMax: 1.52,
-                bombGravityMin: 1.52,
-                bombGravityMax: 1.68,
-                bombChance: 0.08,
-                bombDelayMin: 0.30,
-                bombDelayMax: 0.40,
-                foodCurve: 0.016,
-                bombCurve: 0.036,
+                bombCurve: 0.034,
                 bombTargetOffset: 0.20,
                 bombSizeScale: 0.96
             },
             {
-                maxScore: 69,
-                label: 'Khó',
-                spawnRate: 0.78,
-                foodCountMin: 3,
+                maxScore: 24,
+                label: 'Tăng tốc',
+                spawnRate: 0.90,
+                foodCountMin: 2,
                 foodCountMax: 4,
-                bagScale: 0.93,
-                minHorizontalTravel: 0.20,
-                centerSpread: 0.18,
-                waveDelayStep: 0.068,
-                foodApexMin: 0.18,
-                foodApexMax: 0.26,
-                bombApexMin: 0.16,
-                bombApexMax: 0.22,
-                foodGravityMin: 1.50,
-                foodGravityMax: 1.64,
-                bombGravityMin: 1.66,
-                bombGravityMax: 1.84,
-                bombChance: 0.11,
-                bombDelayMin: 0.28,
-                bombDelayMax: 0.36,
-                foodCurve: 0.018,
-                bombCurve: 0.040,
+                bagScale: 0.86,
+                minHorizontalTravel: 0.22,
+                centerSpread: 0.20,
+                waveDelayStep: 0.070,
+                foodApexMin: 0.23,
+                foodApexMax: 0.33,
+                bombApexMin: 0.19,
+                bombApexMax: 0.28,
+                foodGravityMin: 1.46,
+                foodGravityMax: 1.60,
+                bombGravityMin: 1.60,
+                bombGravityMax: 1.76,
+                bombChance: 0.06,
+                bombDelayMin: 0.30,
+                bombDelayMax: 0.40,
+                foodCurve: 0.016,
+                bombCurve: 0.037,
                 bombTargetOffset: 0.22,
                 bombSizeScale: 0.95
             },
             {
-                maxScore: Number.POSITIVE_INFINITY,
-                label: 'Cực khó',
-                spawnRate: 0.70,
+                maxScore: 44,
+                label: 'Khó',
+                spawnRate: 0.78,
+                foodCountMin: 3,
+                foodCountMax: 4,
+                bagScale: 0.82,
+                minHorizontalTravel: 0.24,
+                centerSpread: 0.22,
+                waveDelayStep: 0.062,
+                foodApexMin: 0.19,
+                foodApexMax: 0.30,
+                bombApexMin: 0.17,
+                bombApexMax: 0.24,
+                foodGravityMin: 1.58,
+                foodGravityMax: 1.74,
+                bombGravityMin: 1.76,
+                bombGravityMax: 1.94,
+                bombChance: 0.09,
+                bombDelayMin: 0.26,
+                bombDelayMax: 0.36,
+                foodCurve: 0.018,
+                bombCurve: 0.040,
+                bombTargetOffset: 0.23,
+                bombSizeScale: 0.93
+            },
+            {
+                maxScore: 69,
+                label: 'Rất khó',
+                spawnRate: 0.66,
                 foodCountMin: 3,
                 foodCountMax: 5,
-                bagScale: 0.89,
-                minHorizontalTravel: 0.22,
-                centerSpread: 0.20,
-                waveDelayStep: 0.06,
-                foodApexMin: 0.15,
-                foodApexMax: 0.23,
+                bagScale: 0.78,
+                minHorizontalTravel: 0.26,
+                centerSpread: 0.23,
+                waveDelayStep: 0.055,
+                foodApexMin: 0.16,
+                foodApexMax: 0.26,
                 bombApexMin: 0.14,
-                bombApexMax: 0.20,
-                foodGravityMin: 1.64,
-                foodGravityMax: 1.82,
-                bombGravityMin: 1.80,
-                bombGravityMax: 2.02,
-                bombChance: 0.14,
-                bombDelayMin: 0.24,
-                bombDelayMax: 0.32,
+                bombApexMax: 0.22,
+                foodGravityMin: 1.74,
+                foodGravityMax: 1.92,
+                bombGravityMin: 1.94,
+                bombGravityMax: 2.14,
+                bombChance: 0.12,
+                bombDelayMin: 0.22,
+                bombDelayMax: 0.30,
                 foodCurve: 0.020,
-                bombCurve: 0.044,
-                bombTargetOffset: 0.24,
-                bombSizeScale: 0.92
+                bombCurve: 0.043,
+                bombTargetOffset: 0.25,
+                bombSizeScale: 0.91
+            },
+            {
+                maxScore: Number.POSITIVE_INFINITY,
+                label: 'Siêu khó',
+                spawnRate: 0.54,
+                foodCountMin: 4,
+                foodCountMax: 6,
+                bagScale: 0.74,
+                minHorizontalTravel: 0.28,
+                centerSpread: 0.24,
+                waveDelayStep: 0.048,
+                foodApexMin: 0.13,
+                foodApexMax: 0.22,
+                bombApexMin: 0.12,
+                bombApexMax: 0.18,
+                foodGravityMin: 1.92,
+                foodGravityMax: 2.14,
+                bombGravityMin: 2.10,
+                bombGravityMax: 2.34,
+                bombChance: 0.16,
+                bombDelayMin: 0.18,
+                bombDelayMax: 0.26,
+                foodCurve: 0.022,
+                bombCurve: 0.046,
+                bombTargetOffset: 0.27,
+                bombSizeScale: 0.90
             }
         ];
 
-        const BOTTOM_LAUNCH_ANCHORS = [0.08, 0.18, 0.30, 0.42, 0.58, 0.70, 0.82, 0.92];
+        const BOTTOM_LAUNCH_ANCHORS = [0.05, 0.14, 0.25, 0.36, 0.47, 0.58, 0.69, 0.80, 0.91, 0.97];
 
         function getDifficultyTier(currentScore = score) {
             return DIFFICULTY_TIERS.find(tier => currentScore <= tier.maxScore) || DIFFICULTY_TIERS[DIFFICULTY_TIERS.length - 1];
@@ -583,8 +581,8 @@
 
                 const shortSide = Math.min(canvas.width, canvas.height);
                 const sizeScale = difficulty.bagScale * (this.isBomb ? difficulty.bombSizeScale : 1);
-                const baseWidth = shortSide * (isTouchDevice ? 0.235 : 0.205) * sizeScale;
-                this.width = clamp(baseWidth, isTouchDevice ? 92 : 96, 178);
+                const baseWidth = shortSide * (isTouchDevice ? 0.165 : 0.145) * sizeScale;
+                this.width = clamp(baseWidth, isTouchDevice ? 64 : 70, isTouchDevice ? 116 : 124);
                 this.height = this.width * 1.38;
 
                 const startX = clamp(canvas.width * launchXNorm, this.width * 0.55, canvas.width - this.width * 0.55);
@@ -687,37 +685,56 @@
         class BagHalf {
             constructor(bag, isLeft) {
                 this.img = bag.img;
-                this.width = bag.width; this.height = bag.height;
-                this.x = bag.x; this.y = bag.y;
+                this.width = bag.width * 0.84;
+                this.height = bag.height * 0.84;
+                this.x = bag.x;
+                this.y = bag.y;
                 this.angle = bag.angle;
                 this.isLeft = isLeft;
-                
-                const splitSpeed = canvas.width * 0.12;
-                this.vx = bag.vx + (isLeft ? -splitSpeed : splitSpeed);
-                this.vy = bag.vy;
-                this.gravity = bag.gravity;
-                this.rotSpeed = bag.rotSpeed + (isLeft ? -4 : 4);
+                this.opacity = 0.82;
+                this.life = 0.72;
+                this.dead = false;
+                this.scale = 1;
+
+                const splitSpeed = canvas.width * 0.07;
+                this.vx = bag.vx * 0.10 + (isLeft ? -splitSpeed : splitSpeed);
+                this.vy = Math.abs(bag.vy) * 0.08 + canvas.height * 0.03;
+                this.gravity = bag.gravity * 1.35;
+                this.rotSpeed = bag.rotSpeed * 0.55 + (isLeft ? -3.2 : 3.2);
             }
             update(dt) {
                 this.vy += this.gravity * dt;
-                this.x += this.vx * dt; this.y += this.vy * dt;
+                this.x += this.vx * dt;
+                this.y += this.vy * dt;
                 this.angle += this.rotSpeed * dt;
+                this.life -= dt * 1.42;
+                this.opacity = clamp(this.life * 1.08, 0, 0.82);
+                this.scale = 0.92 + this.opacity * 0.08;
+                if (this.life <= 0 || this.y > canvas.height + this.height * 1.25) {
+                    this.dead = true;
+                }
             }
             draw() {
+                if (this.dead || this.opacity <= 0) return;
                 ctx.save();
                 ctx.translate(this.x, this.y);
                 ctx.rotate(this.angle);
-                
+                ctx.scale(this.scale, this.scale);
+                ctx.globalAlpha = this.opacity;
+
                 ctx.beginPath();
-                if (this.isLeft) { ctx.rect(-this.width/2, -this.height/2, this.width/2, this.height); } 
-                else { ctx.rect(0, -this.height/2, this.width/2, this.height); }
+                if (this.isLeft) {
+                    ctx.rect(-this.width / 2, -this.height / 2, this.width / 2, this.height);
+                } else {
+                    ctx.rect(0, -this.height / 2, this.width / 2, this.height);
+                }
                 ctx.clip();
-                
+
                 if (this.img && this.img.complete && this.img.naturalWidth !== 0) {
-                    ctx.drawImage(this.img, -this.width/2, -this.height/2, this.width, this.height);
+                    ctx.drawImage(this.img, -this.width / 2, -this.height / 2, this.width, this.height);
                 } else {
                     ctx.fillStyle = '#ffb74d';
-                    ctx.fillRect(-this.width/2, -this.height/2, this.width, this.height);
+                    ctx.fillRect(-this.width / 2, -this.height / 2, this.width, this.height);
                 }
                 ctx.restore();
             }
@@ -857,7 +874,7 @@
                 const b = bags[i];
                 if (b.dead) continue;
                 const distance = distancePointToSegment(b.x, b.y, x1, y1, x2, y2);
-                const hitRadius = b.width * (b.isBomb ? (isTouchDevice ? 0.60 : 0.54) : (isTouchDevice ? 0.78 : 0.68));
+                const hitRadius = b.width * (b.isBomb ? (isTouchDevice ? 0.52 : 0.46) : (isTouchDevice ? 0.66 : 0.58));
                 if (distance < hitRadius) {
                     sliceBag(b);
                 }
@@ -876,15 +893,16 @@
         function drawCenterLogo() {
             if (!centerLogoImage || !centerLogoImage.complete || centerLogoImage.naturalWidth === 0) return;
             const ratio = centerLogoImage.naturalHeight / centerLogoImage.naturalWidth || 0.5;
-            const width = Math.min(canvas.width * 0.34, 420);
+            const shortSide = Math.min(canvas.width, canvas.height);
+            const width = clamp(shortSide * (isTouchDevice ? 0.52 : 0.46), 210, 400);
             const height = width * ratio;
             const x = (canvas.width - width) / 2;
-            const y = (canvas.height - height) / 2 - (height * 0.12);
+            const y = (canvas.height - height) / 2 - (height * 0.10);
 
             ctx.save();
-            ctx.globalAlpha = 0.14;
-            ctx.shadowColor = 'rgba(255,255,255,0.18)';
-            ctx.shadowBlur = 20;
+            ctx.globalAlpha = 0.12;
+            ctx.shadowColor = 'rgba(255,255,255,0.16)';
+            ctx.shadowBlur = 18;
             ctx.drawImage(centerLogoImage, x, y, width, height);
             ctx.restore();
         }
@@ -892,7 +910,7 @@
         function buildWaveLaunchPositions(count) {
             const anchors = shuffleArray(BOTTOM_LAUNCH_ANCHORS.slice());
             const selected = anchors.slice(0, Math.min(count, anchors.length)).sort((a, b) => a - b);
-            return selected.map((anchor) => clamp(anchor + randomBetween(-0.035, 0.035), 0.07, 0.93));
+            return selected.map((anchor) => clamp(anchor + randomBetween(-0.04, 0.04), 0.05, 0.95));
         }
 
         function buildFoodTargetXNorm(launchXNorm, index, count, difficulty) {
@@ -910,7 +928,7 @@
                 target = Math.min(target, 0.66 - randomBetween(0.0, 0.06));
             }
 
-            return clamp(target, 0.16, 0.84);
+            return clamp(target, 0.14, 0.86);
         }
 
         function buildBombTrajectory(difficulty, foodLaunches, foodTargets) {
@@ -920,7 +938,7 @@
                 .map((anchor) => ({ anchor, distance: Math.abs(anchor - avgFoodLaunch) }))
                 .sort((a, b) => b.distance - a.distance);
 
-            const launchXNorm = clamp(launchCandidates[0].anchor + randomBetween(-0.02, 0.02), 0.08, 0.92);
+            const launchXNorm = clamp(launchCandidates[0].anchor + randomBetween(-0.02, 0.02), 0.06, 0.94);
             let targetXNorm = 0.5 + (launchXNorm < 0.5 ? difficulty.bombTargetOffset : -difficulty.bombTargetOffset);
             targetXNorm += randomBetween(-0.03, 0.03);
 
@@ -928,7 +946,7 @@
                 targetXNorm += launchXNorm < 0.5 ? 0.16 : -0.16;
             }
 
-            targetXNorm = clamp(targetXNorm, 0.18, 0.82);
+            targetXNorm = clamp(targetXNorm, 0.14, 0.86);
 
             return {
                 launchXNorm,
@@ -1084,14 +1102,38 @@
             }
             processPendingSpawns(dt);
 
-            [bags, bagHalves, seeds, particles].forEach(arr => {
-                for (let i = arr.length - 1; i >= 0; i--) {
-                    arr[i].update(dt); arr[i].draw();
-                    if (arr[i].dead || arr[i].y > canvas.height + 300 || arr[i].life <= 0) {
-                        arr.splice(i, 1);
-                    }
+            for (let i = bagHalves.length - 1; i >= 0; i--) {
+                bagHalves[i].update(dt);
+                if (bagHalves[i].dead) {
+                    bagHalves.splice(i, 1);
                 }
-            });
+            }
+
+            for (let i = bags.length - 1; i >= 0; i--) {
+                bags[i].update(dt);
+                if (bags[i].dead) {
+                    bags.splice(i, 1);
+                }
+            }
+
+            for (let i = seeds.length - 1; i >= 0; i--) {
+                seeds[i].update(dt);
+                if (seeds[i].dead || seeds[i].y > canvas.height + 300) {
+                    seeds.splice(i, 1);
+                }
+            }
+
+            for (let i = particles.length - 1; i >= 0; i--) {
+                particles[i].update(dt);
+                if (particles[i].life <= 0) {
+                    particles.splice(i, 1);
+                }
+            }
+
+            bagHalves.forEach(item => item.draw());
+            bags.forEach(item => item.draw());
+            seeds.forEach(item => item.draw());
+            particles.forEach(item => item.draw());
 
             ctx.restore(); 
 
@@ -1102,13 +1144,13 @@
             }
 
             const now = performance.now();
-            const trailLifetime = isTouchDevice ? 150 : 120;
+            const trailLifetime = isTouchDevice ? 132 : 108;
             sliceTrail = sliceTrail.filter(p => now - p.time < trailLifetime);
             if (sliceTrail.length > 1) {
                 ctx.beginPath(); ctx.moveTo(sliceTrail[0].x, sliceTrail[0].y);
                 for (let i = 1; i < sliceTrail.length; i++) ctx.lineTo(sliceTrail[i].x, sliceTrail[i].y);
-                ctx.strokeStyle = '#fff'; ctx.lineWidth = isTouchDevice ? 10 : 8; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-                ctx.shadowColor = '#00e5ff'; ctx.shadowBlur = isTouchDevice ? 24 : 20;
+                ctx.strokeStyle = '#fff'; ctx.lineWidth = isTouchDevice ? 8.5 : 7; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+                ctx.shadowColor = '#00e5ff'; ctx.shadowBlur = isTouchDevice ? 20 : 16;
                 ctx.stroke(); ctx.shadowBlur = 0;
             }
 

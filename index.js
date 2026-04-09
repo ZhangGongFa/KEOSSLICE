@@ -356,8 +356,12 @@ const canvas = document.getElementById('gameCanvas');
                 
                 // VẬT LÝ MỚI: Bay ngang sâu hơn, rơi nhanh hơn
                 this.vx = (throwFromLeft ? 1 : -1) * (canvas.width * (0.3 + Math.random() * 0.4));
-                this.vy = -(canvas.height * (1.1 + Math.random() * 0.3)); 
+                this.vy = -(canvas.height * (1.1 + Math.random() * 0.3));
                 this.gravity = canvas.height * 1.6; // Trọng lực gắt hơn, rơi lẹ hơn
+
+                // Ghi lại vận tốc ban đầu và thời điểm xuất hiện để tính tiến trình di chuyển
+                this.initialVy = this.vy;
+                this.spawnTime = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
                 
                 this.angle = 0;
                 this.rotSpeed = (Math.random() - 0.5) * 8; // Xoay tít hơn
@@ -605,23 +609,58 @@ const canvas = document.getElementById('gameCanvas');
                 }
             }
 
-            // SPAWN LOGIC MỚI: Ném theo cụm (Waves) thay vì ném lẻ tẻ
-            const spawnRate = Math.max(0.6, 1.8 - score * 0.03);
+            // SPAWN LOGIC MỚI: điều chỉnh độ khó và đảm bảo không ném đợt mới khi túi hiện tại chưa bay hết 70% quãng đường
+            // Thời gian chờ giữa các đợt ban đầu chậm hơn và giảm dần theo điểm để độ khó tăng từ từ.
+            // Giảm tốc độ xuất hiện một chút theo phản hồi người dùng: tăng baseRate và giới hạn tối thiểu cao hơn.
+            const baseRate = 2.4;
+            const spawnRate = Math.max(1.0, baseRate - score * 0.02);
             spawnTimer += dt;
+            // Kiểm tra xem có thể tạo đợt mới hay không
             if (spawnTimer >= spawnRate) {
-                let itemsToSpawn = 1;
-                // Nếu điểm cao, xác suất ném 2 hoặc 3 món cùng lúc tăng lên
-                if (score > 10 && Math.random() > 0.4) itemsToSpawn = 2;
-                if (score > 30 && Math.random() > 0.6) itemsToSpawn = 3;
-                if (score > 60 && Math.random() > 0.7) itemsToSpawn = 4;
-
-                const throwFromLeft = Math.random() > 0.5;
-                
-                for(let i = 0; i < itemsToSpawn; i++) {
-                    // Ném các món cùng một hướng để tạo cụm hỗn hợp
-                    bags.push(new Bag(throwFromLeft));
+                let canSpawn = true;
+                // Không tạo đợt mới nếu còn túi bay chưa qua 70% thời gian chuyến bay của nó
+                for (let i = 0; i < bags.length; i++) {
+                    const b = bags[i];
+                    if (b.dead) continue;
+                    if (typeof b.initialVy === 'number' && typeof b.gravity === 'number' && typeof b.spawnTime === 'number') {
+                        const totalFlight = Math.abs(2 * b.initialVy / b.gravity);
+                        const nowTime = (typeof performance !== 'undefined' && performance.now) ? performance.now() : Date.now();
+                        const elapsedSec = (nowTime - b.spawnTime) / 1000;
+                        const ratio = elapsedSec / totalFlight;
+                        if (ratio < 0.7) {
+                            canSpawn = false;
+                            break;
+                        }
+                    }
                 }
-                spawnTimer = 0;
+                if (canSpawn) {
+                    let itemsToSpawn = 1;
+                    // Điều chỉnh số lượng túi dựa trên mốc điểm: 1 túi trước 10 điểm,
+                    // 1–2 túi sau 10 điểm, 2–3 túi sau 50 điểm, 3–4 túi sau 80 điểm
+                    if (score > 80) {
+                        // 80 điểm trở lên: mặc định ném 3 túi, có xác suất 4 túi
+                        itemsToSpawn = 3;
+                        if (Math.random() > 0.6) itemsToSpawn = 4;
+                    } else if (score > 50) {
+                        // 51–80 điểm: mặc định ném 2 túi, có xác suất 3 túi
+                        itemsToSpawn = 2;
+                        if (Math.random() > 0.5) itemsToSpawn = 3;
+                    } else if (score > 10) {
+                        // 11–50 điểm: mặc định ném 1 túi, có xác suất 2 túi
+                        itemsToSpawn = 1;
+                        if (Math.random() > 0.5) itemsToSpawn = 2;
+                    } else {
+                        // 0–10 điểm: luôn ném 1 túi
+                        itemsToSpawn = 1;
+                    }
+
+                    const throwFromLeft = Math.random() > 0.5;
+                    for (let i = 0; i < itemsToSpawn; i++) {
+                        // Ném các túi cùng một hướng để tạo cảm giác wave
+                        bags.push(new Bag(throwFromLeft));
+                    }
+                    spawnTimer = 0;
+                }
             }
 
             [bags, bagHalves, seeds, particles].forEach(arr => {
